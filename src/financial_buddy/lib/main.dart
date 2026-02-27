@@ -20,6 +20,8 @@ void main() async {
   runApp(const MyApp());
 }
 
+final supabase = Supabase.instance.client;
+
 // MyApp is the root widget of the application.
 // It's stateless because the top-level app configuration doesn't change at runtime.
 class MyApp extends StatelessWidget {
@@ -43,7 +45,7 @@ class MyApp extends StatelessWidget {
       // making navigation calls like Navigator.pushNamed(context, '/home') possible.
       routes: {
         '/login': (context) => const LoginPage(),
-        '/home': (context) => const HomeScreen(),
+        '/home': (context) => HomeScreen(),
         '/signup': (context) => const SignUpPage(),
       },
     );
