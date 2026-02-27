@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:financial_buddy/main.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:financial_buddy/main.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});

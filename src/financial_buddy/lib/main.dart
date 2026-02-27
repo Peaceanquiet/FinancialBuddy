@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
       // making navigation calls like Navigator.pushNamed(context, '/home') possible.
       routes: {
         '/login': (context) => const LoginPage(),
-        '/home': (context) => const HomeScreen(),
+        '/home': (context) => HomeScreen(),
         '/signup': (context) => const SignUpPage(),
       },
     );
