@@ -18,6 +18,7 @@ class HomeScreen extends StatelessWidget {
         children: [
           Text(
             "Accounts",
+            textScaler: TextScaler.linear(1.55),
             style: TextStyle(fontSize: 16, decorationThickness: 1.5),
           ),
           Column(
@@ -32,9 +33,12 @@ class HomeScreen extends StatelessWidget {
                 child: Row(
                   children: [
                     Padding(padding: EdgeInsetsGeometry.all(15)),
-                    Text("Account Name", textScaler: TextScaler.linear(1.5)),
+                    Text("Account Name", textScaler: TextScaler.linear(1.25)),
                     Spacer(),
-                    Text("Account Balance", textScaler: TextScaler.linear(1.5)),
+                    Text(
+                      "Account Balance",
+                      textScaler: TextScaler.linear(1.25),
+                    ),
                     Padding(padding: EdgeInsetsGeometry.all(10)),
                   ],
                 ),
@@ -42,7 +46,47 @@ class HomeScreen extends StatelessWidget {
               Padding(padding: EdgeInsetsGeometry.all(5)),
               ElevatedButton(
                 onPressed: () {
-                  //               showModalBottomSheet(context: context, builder: builder)
+                  showModalBottomSheet(
+                    context: context,
+                    backgroundColor: Colors.deepPurpleAccent,
+                    barrierColor: Colors.transparent,
+                    isScrollControlled: false,
+                    builder: (_) {
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).viewInsets.bottom,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Padding(padding: EdgeInsetsGeometry.all(5)),
+                            TextFormField(
+                              decoration: InputDecoration(
+                                hintText: "Account Name",
+                                contentPadding: EdgeInsets.all(10),
+                              ),
+                            ),
+                            Padding(padding: EdgeInsetsGeometry.all(5)),
+                            TextFormField(
+                              decoration: InputDecoration(
+                                hintText:
+                                    "Account Type (Checking, Savings, Etc.)",
+                                contentPadding: EdgeInsets.all(10),
+                              ),
+                            ),
+                            Padding(padding: EdgeInsetsGeometry.all(5)),
+                            TextFormField(
+                              decoration: InputDecoration(
+                                hintText: "Initial Balance",
+                                contentPadding: EdgeInsets.all(10),
+                              ),
+                            ),
+                            Padding(padding: EdgeInsetsGeometry.all(25)),
+                          ],
+                        ),
+                      );
+                    },
+                  );
                 },
                 child: Text("Add Account"),
               ),
