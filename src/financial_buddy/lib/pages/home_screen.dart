@@ -1,9 +1,45 @@
+import 'package:financial_buddy/main.dart';
 import 'package:flutter/material.dart';
 import 'package:financial_buddy/widgets/transaction.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class HomeScreen extends StatelessWidget {
-  HomeScreen({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   final List<Transaction> transactions = [];
+  final accNameCtrlr = TextEditingController();
+  final accTypeCtrlr = TextEditingController();
+  final accBlncCtrlr = TextEditingController();
+  List accountInfo = [];
+
+  Future<void> loadAccount() async {
+    final response = await supabase
+        .from("Accounts")
+        .select('acc_name, type, balance');
+
+    setState(() {
+      accountInfo = response;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadAccount();
+  }
+
+  @override
+  void dispose() {
+    accNameCtrlr.dispose();
+    accBlncCtrlr.dispose();
+    accTypeCtrlr.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,26 +59,31 @@ class HomeScreen extends StatelessWidget {
           ),
           Column(
             children: [
-              Container(
-                height: 50,
-                width: 411,
-                decoration: BoxDecoration(
-                  color: Colors.deepPurpleAccent,
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Row(
-                  children: [
-                    Padding(padding: EdgeInsetsGeometry.all(15)),
-                    Text("Account Name", textScaler: TextScaler.linear(1.25)),
-                    Spacer(),
-                    Text(
-                      "Account Balance",
-                      textScaler: TextScaler.linear(1.25),
+              accountInfo.isEmpty
+                  ? const Text("Add an account")
+                  : Container(
+                      height: 50,
+                      width: 411,
+                      decoration: BoxDecoration(
+                        color: Colors.deepPurpleAccent,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Row(
+                        children: [
+                          Padding(padding: EdgeInsetsGeometry.all(15)),
+                          Text(
+                            "${accountInfo[0]['acc_name']}",
+                            textScaler: TextScaler.linear(1.25),
+                          ),
+                          Spacer(),
+                          Text(
+                            "\$${accountInfo[2]['balance']}",
+                            textScaler: TextScaler.linear(1.25),
+                          ),
+                          Padding(padding: EdgeInsetsGeometry.all(10)),
+                        ],
+                      ),
                     ),
-                    Padding(padding: EdgeInsetsGeometry.all(10)),
-                  ],
-                ),
-              ),
               Padding(padding: EdgeInsetsGeometry.all(5)),
               ElevatedButton(
                 onPressed: () {
@@ -65,6 +106,7 @@ class HomeScreen extends StatelessWidget {
                                 hintText: "Account Name",
                                 contentPadding: EdgeInsets.all(10),
                               ),
+                              controller: accNameCtrlr,
                             ),
                             Padding(padding: EdgeInsetsGeometry.all(5)),
                             TextFormField(
@@ -73,6 +115,7 @@ class HomeScreen extends StatelessWidget {
                                     "Account Type (Checking, Savings, Etc.)",
                                 contentPadding: EdgeInsets.all(10),
                               ),
+                              controller: accTypeCtrlr,
                             ),
                             Padding(padding: EdgeInsetsGeometry.all(5)),
                             TextFormField(
@@ -80,8 +123,37 @@ class HomeScreen extends StatelessWidget {
                                 hintText: "Initial Balance",
                                 contentPadding: EdgeInsets.all(10),
                               ),
+                              controller: accBlncCtrlr,
                             ),
                             Padding(padding: EdgeInsetsGeometry.all(25)),
+                            ElevatedButton(
+                              style: ButtonStyle(
+                                backgroundColor: WidgetStatePropertyAll(
+                                  Colors.red,
+                                ),
+                              ),
+                              onPressed: () async {
+                                try {
+                                  await supabase.from('Accounts').insert({
+                                    'acc_name': accNameCtrlr.text.trim(),
+                                    'type': accTypeCtrlr.text.trim(),
+                                    'balance': toDouble(
+                                      accBlncCtrlr.text.trim(),
+                                    ),
+                                  });
+                                } catch (error) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(error.toString()),
+                                      backgroundColor: Theme.of(
+                                        context,
+                                      ).colorScheme.error,
+                                    ),
+                                  );
+                                }
+                              },
+                              child: Text("Save"),
+                            ),
                           ],
                         ),
                       );
