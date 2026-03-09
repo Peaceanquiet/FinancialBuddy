@@ -12,6 +12,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final List<Transaction> transactions = [];
+  final user = supabase.auth.currentUser;
   final accNameCtrlr = TextEditingController();
   final accTypeCtrlr = TextEditingController();
   final accBlncCtrlr = TextEditingController();
@@ -20,7 +21,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> loadAccount() async {
     final response = await supabase
         .from("Accounts")
-        .select('acc_name, type, balance');
+        .select('acc_name, type, balance')
+        .eq('user_id', user!.id);
 
     setState(() {
       accountInfo = response;
@@ -60,28 +62,41 @@ class _HomeScreenState extends State<HomeScreen> {
           Column(
             children: [
               accountInfo.isEmpty
-                  ? const Text("Add an account")
-                  : Container(
-                      height: 50,
-                      width: 411,
-                      decoration: BoxDecoration(
-                        color: Colors.deepPurpleAccent,
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Row(
-                        children: [
-                          Padding(padding: EdgeInsetsGeometry.all(15)),
-                          Text(
-                            "${accountInfo[0]['acc_name']}",
-                            textScaler: TextScaler.linear(1.25),
-                          ),
-                          Spacer(),
-                          Text(
-                            "\$${accountInfo[2]['balance']}",
-                            textScaler: TextScaler.linear(1.25),
-                          ),
-                          Padding(padding: EdgeInsetsGeometry.all(10)),
-                        ],
+                  ? const Text("No accounts to display")
+                  : SizedBox(
+                      height: 200,
+                      child: ListView.builder(
+                        itemCount: accountInfo.length,
+                        itemBuilder: (context, index) {
+                          final acc = accountInfo[index];
+
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Container(
+                              height: 50,
+                              width: 411,
+                              decoration: BoxDecoration(
+                                color: Colors.deepPurpleAccent,
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: Row(
+                                children: [
+                                  const SizedBox(width: 15),
+                                  Text(
+                                    acc['acc_name'],
+                                    textScaler: const TextScaler.linear(1.25),
+                                  ),
+                                  const Spacer(),
+                                  Text(
+                                    "\$${acc['balance']}",
+                                    textScaler: const TextScaler.linear(1.25),
+                                  ),
+                                  const SizedBox(width: 10),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
               Padding(padding: EdgeInsetsGeometry.all(5)),
@@ -135,12 +150,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               onPressed: () async {
                                 try {
                                   await supabase.from('Accounts').insert({
+                                    'user_id': user!.id,
                                     'acc_name': accNameCtrlr.text.trim(),
                                     'type': accTypeCtrlr.text.trim(),
                                     'balance': toDouble(
                                       accBlncCtrlr.text.trim(),
                                     ),
                                   });
+                                  await loadAccount();
                                 } catch (error) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
