@@ -1,4 +1,3 @@
-import 'package:financial_buddy/widgets/transaction.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // Loads environment variables from a .env file
 import 'package:supabase_flutter/supabase_flutter.dart'; // Supabase client for auth and database
