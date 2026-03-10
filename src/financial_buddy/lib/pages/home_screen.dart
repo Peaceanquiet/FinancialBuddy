@@ -11,7 +11,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<Transaction> transactions = [];
   final user = supabase.auth.currentUser;
   final accNameCtrlr = TextEditingController();
   final accTypeCtrlr = TextEditingController();
