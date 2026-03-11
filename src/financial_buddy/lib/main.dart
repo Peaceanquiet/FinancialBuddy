@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart'; // Supabase client for 
 import 'pages/home_screen.dart';
 import 'pages/login_page.dart';
 import 'pages/signup_page.dart';
+import 'pages/transactions_page.dart';
 
 void main() async {
   // Load environment variables from the .env file (Supabase URL and anon key)
@@ -47,6 +48,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginPage(),
         '/home': (context) => HomeScreen(),
         '/signup': (context) => const SignUpPage(),
+        '/transactions': (context) => TransactionsPage(),
       },
     );
   }
