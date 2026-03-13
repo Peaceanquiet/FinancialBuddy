@@ -183,7 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () {
               Navigator.of(context).pushNamed("/transactions");
             },
-            child: Text("Transactions [test button]"),
+            child: Text("Transactions"),
           ),
         ],
       ),
