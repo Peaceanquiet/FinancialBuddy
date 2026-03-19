@@ -1,7 +1,7 @@
 import 'package:financial_buddy/main.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:financial_buddy/widgets/Fin_bud_app_bar.dart';
+import 'package:financial_buddy/widgets/buddy_drawer.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
