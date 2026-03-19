@@ -10,7 +10,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0;
   static const TextStyle optionStyle = TextStyle(
     fontSize: 30,
     fontWeight: FontWeight.bold,
@@ -22,11 +21,13 @@ class _HomeScreenState extends State<HomeScreen> {
     Text('Index 2: Budgeting', style: optionStyle),
   ];
 
+  /*
   void _OnItemTapped(int index) {
     setState(() {
-      _selectedIndex = index;
+      //
     });
   }
+  */
 
   final user = supabase.auth.currentUser;
   final accNameCtrlr = TextEditingController();
@@ -82,26 +83,33 @@ class _HomeScreenState extends State<HomeScreen> {
         centerTitle: true,
         backgroundColor: Colors.deepPurple,
       ),
+      /*
+       *  Drawer from Hamburger 
+       */
       drawer: Drawer(
         child: ListView(
-          padding: EdgeInsets.zero,
+          padding: (EdgeInsets.fromLTRB(0, 0, 0, 0)),
           children: [
             const DrawerHeader(
               decoration: BoxDecoration(color: Colors.deepPurple),
-              child: Text('Placeholder Menu Name'),
+              child: Text(
+                'Placeholder Menu Name',
+                textScaler: TextScaler.linear(1.4),
+              ),
             ),
             ListTile(
               title: const Text('Home'),
               //selected: Navigator.pushNamed(context, HomeScreen()),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pushReplacementNamed(context, '/home');
+                //Navigator.pop(context);
               },
             ),
             ListTile(
               title: const Text('Transactions'),
               //selected:Navigator.pushNamed(context, TransactionsPage()),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pushReplacementNamed(context, '/transactions');
               },
             ),
           ],
