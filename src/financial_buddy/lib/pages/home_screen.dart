@@ -10,6 +10,24 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  int _selectedIndex = 0;
+  static const TextStyle optionStyle = TextStyle(
+    fontSize: 30,
+    fontWeight: FontWeight.bold,
+  );
+
+  static const List<Widget> _widgetOptions = <Widget>[
+    Text('Index 0: Home', style: optionStyle),
+    Text('Index 1: Transactions', style: optionStyle),
+    Text('Index 2: Budgeting', style: optionStyle),
+  ];
+
+  void _OnItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   final user = supabase.auth.currentUser;
   final accNameCtrlr = TextEditingController();
   final accTypeCtrlr = TextEditingController();
@@ -47,8 +65,47 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.deepPurple.shade100,
       appBar: AppBar(
         title: const Text('Financial Buddy', textScaler: TextScaler.linear(2)),
+        /* **************
+        *  Hamburger Menu
+        *  **************
+        */
+        leading: Builder(
+          builder: (context) {
+            return IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          },
+        ),
         centerTitle: true,
         backgroundColor: Colors.deepPurple,
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(color: Colors.deepPurple),
+              child: Text('Placeholder Menu Name'),
+            ),
+            ListTile(
+              title: const Text('Home'),
+              //selected: Navigator.pushNamed(context, HomeScreen()),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Transactions'),
+              //selected:Navigator.pushNamed(context, TransactionsPage()),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
       ),
       body: Column(
         children: [
