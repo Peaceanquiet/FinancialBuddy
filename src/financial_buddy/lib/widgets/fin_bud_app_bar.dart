@@ -11,6 +11,8 @@ class BuddyDrawer extends StatelessWidget {
         padding: EdgeInsets.zero,
         children: [
           DrawerHeader(
+            // This creates that pretty little box, which I believe can house
+            // some images later on.
             decoration: BoxDecoration(color: Colors.deepPurple),
             child: Text(title, textScaler: TextScaler.linear(1.4)),
           ),
@@ -27,6 +29,8 @@ class BuddyDrawer extends StatelessWidget {
               Navigator.pushReplacementNamed(context, '/transactions');
             },
           ),
+          // Can add more ListTiles here whenever a new navigational
+          // point is needed.
         ],
       ),
     );

@@ -191,12 +191,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pushNamed("/transactions");
-            },
-            child: Text("Transactions"),
-          ),
         ],
       ),
     );
