@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-//import 'package:financial_buddy/main.dart';
 class BuddyDrawer extends StatelessWidget {
   const BuddyDrawer({super.key, required this.title});
   final String title;
