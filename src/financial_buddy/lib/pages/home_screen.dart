@@ -1,34 +1,15 @@
 import 'package:financial_buddy/main.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:financial_buddy/widgets/Fin_bud_app_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
-
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  static const TextStyle optionStyle = TextStyle(
-    fontSize: 30,
-    fontWeight: FontWeight.bold,
-  );
-
-  static const List<Widget> _widgetOptions = <Widget>[
-    Text('Index 0: Home', style: optionStyle),
-    Text('Index 1: Transactions', style: optionStyle),
-    Text('Index 2: Budgeting', style: optionStyle),
-  ];
-
-  /*
-  void _OnItemTapped(int index) {
-    setState(() {
-      //
-    });
-  }
-  */
-
   final user = supabase.auth.currentUser;
   final accNameCtrlr = TextEditingController();
   final accTypeCtrlr = TextEditingController();
@@ -66,10 +47,9 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.deepPurple.shade100,
       appBar: AppBar(
         title: const Text('Financial Buddy', textScaler: TextScaler.linear(2)),
-        /* **************
-        *  Hamburger Menu
-        *  **************
-        */
+        /*****************
+        * Hamburger Menu *
+        *****************/
         leading: Builder(
           builder: (context) {
             return IconButton(
@@ -80,41 +60,8 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           },
         ),
-        centerTitle: true,
-        backgroundColor: Colors.deepPurple,
       ),
-      /*
-       *  Drawer from Hamburger 
-       */
-      drawer: Drawer(
-        child: ListView(
-          padding: (EdgeInsets.fromLTRB(0, 0, 0, 0)),
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(color: Colors.deepPurple),
-              child: Text(
-                'Placeholder Menu Name',
-                textScaler: TextScaler.linear(1.4),
-              ),
-            ),
-            ListTile(
-              title: const Text('Home'),
-              //selected: Navigator.pushNamed(context, HomeScreen()),
-              onTap: () {
-                Navigator.pushReplacementNamed(context, '/home');
-                //Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text('Transactions'),
-              //selected:Navigator.pushNamed(context, TransactionsPage()),
-              onTap: () {
-                Navigator.pushReplacementNamed(context, '/transactions');
-              },
-            ),
-          ],
-        ),
-      ),
+      drawer: BuddyDrawer(title: "Home Screen"),
       body: Column(
         children: [
           Text(

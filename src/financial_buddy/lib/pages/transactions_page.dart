@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:financial_buddy/widgets/transaction.dart';
 import 'expense_actions.dart';
+import 'package:financial_buddy/widgets/fin_bud_app_bar.dart';
 
 class TransactionsPage extends StatefulWidget {
   const TransactionsPage({super.key});
@@ -137,7 +138,21 @@ class _TransactionsPage extends State<TransactionsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Transactions'), centerTitle: true),
+      appBar: AppBar(
+        leading: Builder(
+          builder: (context) {
+            return IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          },
+        ),
+        title: const Text('Transactions'),
+        centerTitle: true,
+      ),
+      drawer: BuddyDrawer(title: "Transactions"),
       // List of transactions
       body: ListView.builder(
         itemCount: transactions.length,
