@@ -25,6 +25,8 @@ class BuddyDrawer extends StatelessWidget {
             title: const Text("Home Screen"),
             onTap: () {
               Navigator.pushReplacementNamed(context, '/home');
+              //This will just pop the menu instead of loading (see above comment)
+              //Navigator.pop(context);
             },
           ),
           ListTile(
