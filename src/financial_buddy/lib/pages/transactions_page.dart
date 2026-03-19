@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:financial_buddy/widgets/transaction.dart';
 import 'expense_actions.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class TransactionsPage extends StatefulWidget {
-  TransactionsPage({super.key});
+  const TransactionsPage({super.key});
 
   @override
   State<TransactionsPage> createState() => _TransactionsPage();
