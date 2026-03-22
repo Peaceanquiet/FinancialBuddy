@@ -68,7 +68,7 @@ Future<List<Transaction>> loadTransactions() async {
     final supabase = Supabase.instance.client;
     final user = supabase.auth.currentUser;
     print('Fetching transactions...');
-    final response = await supabase.from('transactions').select().eq('user_id', user!.id);;
+    final response = await supabase.from('transactions').select().eq('user_id', user!.id);
     print('Response: $response');
     
     final transactions = <Transaction>[];

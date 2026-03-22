@@ -1,10 +1,10 @@
 import 'package:financial_buddy/main.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:financial_buddy/widgets/buddy_drawer.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
-
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -47,9 +47,21 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.deepPurple.shade100,
       appBar: AppBar(
         title: const Text('Financial Buddy', textScaler: TextScaler.linear(2)),
-        centerTitle: true,
-        backgroundColor: Colors.deepPurple,
+        /*****************
+        * Hamburger Menu *
+        *****************/
+        leading: Builder(
+          builder: (context) {
+            return IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          },
+        ),
       ),
+      drawer: BuddyDrawer(title: "Home Screen"),
       body: Column(
         children: [
           Text(
@@ -178,12 +190,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Text("Add Account"),
               ),
             ],
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pushNamed("/transactions");
-            },
-            child: Text("Transactions"),
           ),
         ],
       ),
