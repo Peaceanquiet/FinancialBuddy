@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:financial_buddy/widgets/transaction.dart';
 import 'expense_actions.dart';
-import 'package:financial_buddy/widgets/fin_bud_app_bar.dart';
+import 'package:financial_buddy/widgets/buddy_drawer.dart';
 
 class TransactionsPage extends StatefulWidget {
   const TransactionsPage({super.key});
