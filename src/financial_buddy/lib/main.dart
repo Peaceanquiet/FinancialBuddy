@@ -1,3 +1,4 @@
+import 'package:financial_buddy/pages/finances.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // Loads environment variables from a .env file
 import 'package:supabase_flutter/supabase_flutter.dart'; // Supabase client for auth and database
@@ -49,6 +50,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) => HomeScreen(),
         '/signup': (context) => const SignUpPage(),
         '/transactions': (context) => TransactionsPage(),
+        '/finances': (context) => FinancesPage(),
       },
     );
   }
