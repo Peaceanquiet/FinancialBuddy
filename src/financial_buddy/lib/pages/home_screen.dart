@@ -19,12 +19,54 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> loadAccount() async {
     final response = await supabase
         .from("Accounts")
-        .select('acc_name, type, balance')
+        .select('acc_id, acc_name, type, balance')
         .eq('user_id', user!.id);
 
     setState(() {
       accountInfo = response;
     });
+  }
+
+  Future<void> _deleteAccount(String accId, String accName) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Account'),
+        content: Text(
+          'Are you sure you want to delete "$accName"?\n\nThis will also delete all transactions associated with this account.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      // Delete related transactions first
+      await supabase.from('transactions').delete().eq('account_id', accId);
+      // Then delete the account
+      await supabase.from('Accounts').delete().eq('acc_id', accId);
+      await loadAccount();
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error.toString()),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -47,9 +89,6 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.deepPurple.shade100,
       appBar: AppBar(
         title: const Text('Financial Buddy', textScaler: TextScaler.linear(2)),
-        /*****************
-        * Hamburger Menu *
-        *****************/
         leading: Builder(
           builder: (context) {
             return IconButton(
@@ -101,7 +140,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                     "\$${acc['balance']}",
                                     textScaler: const TextScaler.linear(1.25),
                                   ),
-                                  const SizedBox(width: 10),
+                                  const SizedBox(width: 6),
+                                  // DELETE BUTTON
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: Colors.white70,
+                                      size: 20,
+                                    ),
+                                    onPressed: () => _deleteAccount(
+                                      acc['acc_id'].toString(),
+                                      acc['acc_name'],
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
