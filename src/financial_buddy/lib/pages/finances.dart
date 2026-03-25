@@ -1,6 +1,7 @@
 import 'package:financial_buddy/main.dart';
 import 'package:flutter/material.dart';
 import 'package:financial_buddy/widgets/buddy_drawer.dart';
+//import 'package:hive_flutter/hive_flutter.dart';
 
 class FinancesPage extends StatefulWidget {
   const FinancesPage({super.key});
@@ -41,6 +42,9 @@ class _FinancesPageState extends State<FinancesPage> {
 
   @override
   Widget build(BuildContext context) {
+    double scr_width = MediaQuery.sizeOf(context).width;
+    double scr_height = MediaQuery.sizeOf(context).height;
+
     return Scaffold(
       backgroundColor: Color((Colors.deepPurple.shade200.toARGB32())),
       appBar: AppBar(
@@ -50,7 +54,6 @@ class _FinancesPageState extends State<FinancesPage> {
           textAlign: TextAlign.center,
         ),
         backgroundColor: Color((Colors.white.toARGB32())),
-
         /*****************
         * Hamburger Menu *
         *****************/
@@ -66,14 +69,41 @@ class _FinancesPageState extends State<FinancesPage> {
         ),
       ),
       drawer: BuddyDrawer(title: "Home Screen"),
-      body: ListView(
+
+      body: Column(
         children: [
-          Text(
-            "Finances",
-            textScaler: TextScaler.linear(1.55),
-            style: TextStyle(fontSize: 16, decorationThickness: 1.5),
-            textAlign: TextAlign.center,
+          SizedBox(
+            width: scr_width,
+            height: scr_height / 5,
+            child: Card(
+              elevation: 10,
+              child: Column(
+                children: [
+                  Text(
+                    "Savings Goals",
+                    textAlign: TextAlign.center,
+                    textScaler: TextScaler.linear(1.75),
+                  ),
+                  Spacer(),
+                  Row(
+                    children: [
+                      Text("Goals: #", textScaler: TextScaler.linear(1.25)),
+                      Spacer(),
+                      IconButton(
+                        onPressed: () {},
+                        icon: Icon(
+                          size: 30,
+                          color: Colors.deepPurple,
+                          Icons.add_circle,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
+          //ListView.builder
         ],
       ),
     );
