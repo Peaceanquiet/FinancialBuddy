@@ -281,12 +281,9 @@ class _FinancesPageState extends State<FinancesPage> {
                           IconButton(
                             onPressed: () async {
                               await loadTxns();
-                              Map selectedTxn = transactions.isNotEmpty
-                                  ? transactions[0]
-                                  : {};
-                              int txnAmount = (selectedTxn['amount'] as num)
-                                  .toInt();
-
+                              if (transactions.isEmpty) return;
+                              Map<String, dynamic> selectedTxn =
+                                  transactions[0];
                               showDialog(
                                 context: context,
                                 builder: (context) => StatefulBuilder(
@@ -325,15 +322,23 @@ class _FinancesPageState extends State<FinancesPage> {
                                           ),
                                           ElevatedButton(
                                             onPressed: () async {
+                                              final txnAmount =
+                                                  (selectedTxn['amount']
+                                                          as num?)
+                                                      ?.toInt() ??
+                                                  0;
+                                              final currentProgress =
+                                                  goals[index]['goal_progress'];
+                                              final newProgress =
+                                                  currentProgress + txnAmount;
                                               await BudgetGoalsSupa()
                                                   .addProgress(
                                                     goals[index]['goal_name'],
                                                     user!.id,
-                                                    txnAmount,
+                                                    newProgress,
                                                   );
-                                              goalName.clear();
-                                              goalAmnt.clear();
                                               Navigator.pop(context);
+                                              await loadGoals();
                                             },
                                             child: Text("Add"),
                                           ),
