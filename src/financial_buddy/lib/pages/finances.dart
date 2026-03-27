@@ -324,14 +324,12 @@ class _FinancesPageState extends State<FinancesPage> {
                                           ElevatedButton(
                                             onPressed: () async {
                                               final txnAmount =
-                                                  (selectedTxn['amount']
-                                                          as num?)
-                                                      ?.toInt() ??
-                                                  0;
-                                              final currentProgress =
+                                                  (selectedTxn['amount'] as num)
+                                                      .toInt();
+                                              final currProgress =
                                                   goals[index]['goal_progress'];
                                               final newProgress =
-                                                  currentProgress + txnAmount;
+                                                  currProgress + txnAmount;
                                               final goalNameStr =
                                                   goals[index]['goal_name']
                                                       as String? ??
