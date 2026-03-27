@@ -52,6 +52,7 @@ class BudgetGoalsSupa {
     await supabase
         .from("Budget_Goals")
         .update({'goal_progress': progress})
+        .eq("goal_name", goalName)
         .eq("user_id", userId);
   }
 }
@@ -331,9 +332,14 @@ class _FinancesPageState extends State<FinancesPage> {
                                                   goals[index]['goal_progress'];
                                               final newProgress =
                                                   currentProgress + txnAmount;
+                                              final goalNameStr =
+                                                  goals[index]['goal_name']
+                                                      as String? ??
+                                                  '';
+                                              if (goalNameStr.isEmpty) return;
                                               await BudgetGoalsSupa()
                                                   .addProgress(
-                                                    goals[index]['goal_name'],
+                                                    goalNameStr,
                                                     user!.id,
                                                     newProgress,
                                                   );
