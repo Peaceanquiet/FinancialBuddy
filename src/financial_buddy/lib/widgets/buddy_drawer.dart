@@ -15,7 +15,11 @@ class BuddyDrawer extends StatelessWidget {
             // This creates that pretty little box, which I believe can house
             // some images later on.
             decoration: BoxDecoration(color: Colors.deepPurple),
-            child: Text(title, textScaler: TextScaler.linear(1.4)),
+            child: Text(
+              title,
+              textScaler: TextScaler.linear(1.4),
+              textAlign: TextAlign.center,
+            ),
           ),
           // Navigation can probably use some minor optimization for
           // checking if the screen its on now is open so it doesn't
@@ -33,6 +37,12 @@ class BuddyDrawer extends StatelessWidget {
             title: const Text("Transactions"),
             onTap: () {
               Navigator.pushReplacementNamed(context, '/transactions');
+            },
+          ),
+          ListTile(
+            title: const Text("Finances"),
+            onTap: () {
+              Navigator.pushReplacementNamed(context, '/finances');
             },
           ),
           // Can add more ListTiles here whenever a new navigational

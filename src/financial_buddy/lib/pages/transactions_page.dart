@@ -16,8 +16,14 @@ class _TransactionsPage extends State<TransactionsPage> {
   List accounts = [];
 
   final List<String> categories = [
-    'Food', 'Transport', 'Housing', 'Entertainment',
-    'Health', 'Shopping', 'Salary', 'Other'
+    'Food',
+    'Transport',
+    'Housing',
+    'Entertainment',
+    'Health',
+    'Shopping',
+    'Salary',
+    'Other',
   ];
   final List<String> types = ['Expense', 'Income'];
 
@@ -47,13 +53,32 @@ class _TransactionsPage extends State<TransactionsPage> {
     _loadAccounts();
   }
 
-  void _addTransaction(String title, double amount, String accountId, String type, String category) async {
+  void _addTransaction(
+    String title,
+    double amount,
+    String accountId,
+    String type,
+    String category,
+  ) async {
     await addTransaction(title, amount, accountId, type, category);
     await _loadTransactions();
   }
 
-  void _editTransaction(int index, String newTitle, double newAmount, String newType, String newCategory) async {
-    await editTransaction(transactions, index, newTitle, newAmount, newType, newCategory);
+  void _editTransaction(
+    int index,
+    String newTitle,
+    double newAmount,
+    String newType,
+    String newCategory,
+  ) async {
+    await editTransaction(
+      transactions,
+      index,
+      newTitle,
+      newAmount,
+      newType,
+      newCategory,
+    );
     await _loadTransactions();
   }
 
@@ -67,7 +92,9 @@ class _TransactionsPage extends State<TransactionsPage> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Delete Transaction'),
-        content: const Text('Are you sure you want to delete this transaction?'),
+        content: const Text(
+          'Are you sure you want to delete this transaction?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
@@ -115,29 +142,26 @@ class _TransactionsPage extends State<TransactionsPage> {
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   decoration: const InputDecoration(labelText: 'Type'),
-                  value: selectedType,
-                  items: types.map((t) => DropdownMenuItem(
-                    value: t,
-                    child: Text(t),
-                  )).toList(),
-                  onChanged: (val) =>
-                      setStateDialog(() => selectedType = val!),
+                  initialValue: selectedType,
+                  items: types
+                      .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+                      .toList(),
+                  onChanged: (val) => setStateDialog(() => selectedType = val!),
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   decoration: const InputDecoration(labelText: 'Category'),
-                  value: selectedCategory,
-                  items: categories.map((c) => DropdownMenuItem(
-                    value: c,
-                    child: Text(c),
-                  )).toList(),
+                  initialValue: selectedCategory,
+                  items: categories
+                      .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                      .toList(),
                   onChanged: (val) =>
                       setStateDialog(() => selectedCategory = val!),
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   decoration: const InputDecoration(labelText: 'Account'),
-                  value: selectedAccountId,
+                  initialValue: selectedAccountId,
                   items: accounts.map<DropdownMenuItem<String>>((acc) {
                     return DropdownMenuItem(
                       value: acc['acc_id'].toString(),
@@ -160,7 +184,13 @@ class _TransactionsPage extends State<TransactionsPage> {
                 if (title.isNotEmpty &&
                     double.tryParse(price) != null &&
                     selectedAccountId != null) {
-                  _addTransaction(title, double.parse(price), selectedAccountId!, selectedType, selectedCategory);
+                  _addTransaction(
+                    title,
+                    double.parse(price),
+                    selectedAccountId!,
+                    selectedType,
+                    selectedCategory,
+                  );
                   Navigator.of(ctx).pop();
                 }
               },
@@ -174,11 +204,12 @@ class _TransactionsPage extends State<TransactionsPage> {
 
   void _showEditExpenseDialog(int index) {
     final tx = transactions[index];
-    String title = tx.tTitle;  
+    String title = tx.tTitle;
     String price = tx.tAmount.toString();
     String selectedType = tx.tType;
-    String selectedCategory =
-        categories.contains(tx.tCategory) ? tx.tCategory : 'Other';
+    String selectedCategory = categories.contains(tx.tCategory)
+        ? tx.tCategory
+        : 'Other';
     String? selectedAccountId;
 
     showDialog(
@@ -205,29 +236,26 @@ class _TransactionsPage extends State<TransactionsPage> {
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   decoration: const InputDecoration(labelText: 'Type'),
-                  value: selectedType,
-                  items: types.map((t) => DropdownMenuItem(
-                    value: t,
-                    child: Text(t),
-                  )).toList(),
-                  onChanged: (val) =>
-                      setStateDialog(() => selectedType = val!),
+                  initialValue: selectedType,
+                  items: types
+                      .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+                      .toList(),
+                  onChanged: (val) => setStateDialog(() => selectedType = val!),
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   decoration: const InputDecoration(labelText: 'Category'),
-                  value: selectedCategory,
-                  items: categories.map((c) => DropdownMenuItem(
-                    value: c,
-                    child: Text(c),
-                  )).toList(),
+                  initialValue: selectedCategory,
+                  items: categories
+                      .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                      .toList(),
                   onChanged: (val) =>
                       setStateDialog(() => selectedCategory = val!),
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   decoration: const InputDecoration(labelText: 'Account'),
-                  value: selectedAccountId,
+                  initialValue: selectedAccountId,
                   items: accounts.map<DropdownMenuItem<String>>((acc) {
                     return DropdownMenuItem(
                       value: acc['acc_id'].toString(),
@@ -248,7 +276,13 @@ class _TransactionsPage extends State<TransactionsPage> {
             ElevatedButton(
               onPressed: () {
                 if (title.isNotEmpty && double.tryParse(price) != null) {
-                  _editTransaction(index, title, double.parse(price), selectedType, selectedCategory);
+                  _editTransaction(
+                    index,
+                    title,
+                    double.parse(price),
+                    selectedType,
+                    selectedCategory,
+                  );
                   Navigator.of(ctx).pop();
                 }
               },
@@ -290,7 +324,9 @@ class _TransactionsPage extends State<TransactionsPage> {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -298,13 +334,13 @@ class _TransactionsPage extends State<TransactionsPage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                           Text(
-                            tx.tTitle,  // was tx.tCategory
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                            Text(
+                              tx.tTitle, // was tx.tCategory
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
                             Text(
                               tx.tType == 'Income'
                                   ? '+\$${tx.tAmount.toStringAsFixed(2)}'
@@ -326,22 +362,28 @@ class _TransactionsPage extends State<TransactionsPage> {
                           children: [
                             Row(
                               children: [
-                                const Icon(Icons.account_balance_wallet,
-                                    size: 14, color: Colors.deepPurple),
+                                const Icon(
+                                  Icons.account_balance_wallet,
+                                  size: 14,
+                                  color: Colors.deepPurple,
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   tx.tAccount,
                                   style: const TextStyle(
-                                      fontSize: 13, color: Colors.deepPurple),
+                                    fontSize: 13,
+                                    color: Colors.deepPurple,
+                                  ),
                                 ),
                               ],
                             ),
                             Text(
                               '${tx.tDate.month}/${tx.tDate.day}/${tx.tDate.year}',
                               style: const TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey,
-                                  fontWeight: FontWeight.bold),
+                                fontSize: 13,
+                                color: Colors.grey,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ],
                         ),
@@ -349,13 +391,18 @@ class _TransactionsPage extends State<TransactionsPage> {
                         // Category row
                         Row(
                           children: [
-                            const Icon(Icons.category,
-                                size: 14, color: Colors.black54),
+                            const Icon(
+                              Icons.category,
+                              size: 14,
+                              color: Colors.black54,
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               tx.tCategory,
                               style: const TextStyle(
-                                  fontSize: 13, color: Colors.black54),
+                                fontSize: 13,
+                                color: Colors.black54,
+                              ),
                             ),
                           ],
                         ),
@@ -372,10 +419,15 @@ class _TransactionsPage extends State<TransactionsPage> {
                             const SizedBox(width: 8),
                             TextButton.icon(
                               onPressed: () => _confirmDeleteTransaction(index),
-                              icon: const Icon(Icons.delete,
-                                  size: 16, color: Colors.redAccent),
-                              label: const Text('Delete',
-                                  style: TextStyle(color: Colors.redAccent)),
+                              icon: const Icon(
+                                Icons.delete,
+                                size: 16,
+                                color: Colors.redAccent,
+                              ),
+                              label: const Text(
+                                'Delete',
+                                style: TextStyle(color: Colors.redAccent),
+                              ),
                             ),
                           ],
                         ),
