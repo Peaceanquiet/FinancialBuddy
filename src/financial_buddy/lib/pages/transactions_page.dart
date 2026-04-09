@@ -114,11 +114,15 @@ class _TransactionsPage extends State<TransactionsPage> {
   }
 
   void _showAddExpenseDialog() {
-    String title = '';
-    String price = '';
+    // Use a GlobalKey to access the Form state for validation
+    final formKey = GlobalKey<FormState>();
+    final titleController = TextEditingController();
+    final amountController = TextEditingController();
     String? selectedAccountId;
     String selectedType = 'Expense';
     String selectedCategory = 'Food';
+    // Track whether account dropdown was touched without a selection
+    bool accountTouched = false;
 
     showDialog(
       context: context,
@@ -126,52 +130,104 @@ class _TransactionsPage extends State<TransactionsPage> {
         builder: (ctx, setStateDialog) => AlertDialog(
           title: const Text('Add Transaction'),
           content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  decoration: const InputDecoration(labelText: 'Title'),
-                  onChanged: (val) => title = val,
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  decoration: const InputDecoration(labelText: 'Amount'),
-                  keyboardType: TextInputType.number,
-                  onChanged: (val) => price = val,
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(labelText: 'Type'),
-                  initialValue: selectedType,
-                  items: types
-                      .map((t) => DropdownMenuItem(value: t, child: Text(t)))
-                      .toList(),
-                  onChanged: (val) => setStateDialog(() => selectedType = val!),
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(labelText: 'Category'),
-                  initialValue: selectedCategory,
-                  items: categories
-                      .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-                      .toList(),
-                  onChanged: (val) =>
-                      setStateDialog(() => selectedCategory = val!),
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(labelText: 'Account'),
-                  initialValue: selectedAccountId,
-                  items: accounts.map<DropdownMenuItem<String>>((acc) {
-                    return DropdownMenuItem(
-                      value: acc['acc_id'].toString(),
-                      child: Text(acc['acc_name']),
-                    );
-                  }).toList(),
-                  onChanged: (val) =>
-                      setStateDialog(() => selectedAccountId = val),
-                ),
-              ],
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // ── Title ──────────────────────────────────────────────
+                  TextFormField(
+                    controller: titleController,
+                    decoration: const InputDecoration(labelText: 'Title'),
+                    validator: (val) {
+                      if (val == null || val.trim().isEmpty) {
+                        return 'Title is required';
+                      }
+                      if (val.trim().length < 2) {
+                        return 'Title must be at least 2 characters';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+
+                  // ── Amount ─────────────────────────────────────────────
+                  TextFormField(
+                    controller: amountController,
+                    decoration: const InputDecoration(labelText: 'Amount'),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    validator: (val) {
+                      if (val == null || val.trim().isEmpty) {
+                        return 'Amount is required';
+                      }
+                      final parsed = double.tryParse(val.trim());
+                      if (parsed == null) {
+                        return 'Enter a valid number (e.g. 12.50)';
+                      }
+                      if (parsed <= 0) {
+                        return 'Amount must be greater than zero';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+
+                  // ── Type ───────────────────────────────────────────────
+                  DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(labelText: 'Type'),
+                    value: selectedType,
+                    items: types
+                        .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+                        .toList(),
+                    onChanged: (val) =>
+                        setStateDialog(() => selectedType = val!),
+                    // Type always has a default, so no validator needed
+                  ),
+                  const SizedBox(height: 12),
+
+                  // ── Category ───────────────────────────────────────────
+                  DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(labelText: 'Category'),
+                    value: selectedCategory,
+                    items: categories
+                        .map(
+                          (c) => DropdownMenuItem(value: c, child: Text(c)),
+                        )
+                        .toList(),
+                    onChanged: (val) =>
+                        setStateDialog(() => selectedCategory = val!),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // ── Account ────────────────────────────────────────────
+                  DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(
+                      labelText: 'Account',
+                      // Show the error inline via the form validator below
+                    ),
+                    value: selectedAccountId,
+                    hint: const Text('Select an account'),
+                    items: accounts.map<DropdownMenuItem<String>>((acc) {
+                      return DropdownMenuItem(
+                        value: acc['acc_id'].toString(),
+                        child: Text(acc['acc_name']),
+                      );
+                    }).toList(),
+                    validator: (val) {
+                      if (val == null || val.isEmpty) {
+                        return 'Please select an account';
+                      }
+                      return null;
+                    },
+                    onChanged: (val) => setStateDialog(() {
+                      selectedAccountId = val;
+                      accountTouched = true;
+                    }),
+                  ),
+                ],
+              ),
             ),
           ),
           actions: [
@@ -181,12 +237,11 @@ class _TransactionsPage extends State<TransactionsPage> {
             ),
             ElevatedButton(
               onPressed: () {
-                if (title.isNotEmpty &&
-                    double.tryParse(price) != null &&
-                    selectedAccountId != null) {
+                // Trigger all validators at once; red messages appear inline
+                if (formKey.currentState!.validate()) {
                   _addTransaction(
-                    title,
-                    double.parse(price),
+                    titleController.text.trim(),
+                    double.parse(amountController.text.trim()),
                     selectedAccountId!,
                     selectedType,
                     selectedCategory,
@@ -203,14 +258,15 @@ class _TransactionsPage extends State<TransactionsPage> {
   }
 
   void _showEditExpenseDialog(int index) {
+    final formKey = GlobalKey<FormState>();
     final tx = transactions[index];
-    String title = tx.tTitle;
-    String price = tx.tAmount.toString();
+    final titleController = TextEditingController(text: tx.tTitle);
+    final amountController = TextEditingController(
+      text: tx.tAmount.toString(),
+    );
     String selectedType = tx.tType;
-    String selectedCategory = categories.contains(tx.tCategory)
-        ? tx.tCategory
-        : 'Other';
-    String? selectedAccountId;
+    String selectedCategory =
+        categories.contains(tx.tCategory) ? tx.tCategory : 'Other';
 
     showDialog(
       context: context,
@@ -218,54 +274,76 @@ class _TransactionsPage extends State<TransactionsPage> {
         builder: (ctx, setStateDialog) => AlertDialog(
           title: const Text('Edit Transaction'),
           content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  decoration: const InputDecoration(labelText: 'Title'),
-                  controller: TextEditingController(text: title),
-                  onChanged: (val) => title = val,
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  decoration: const InputDecoration(labelText: 'Amount'),
-                  keyboardType: TextInputType.number,
-                  controller: TextEditingController(text: price),
-                  onChanged: (val) => price = val,
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(labelText: 'Type'),
-                  initialValue: selectedType,
-                  items: types
-                      .map((t) => DropdownMenuItem(value: t, child: Text(t)))
-                      .toList(),
-                  onChanged: (val) => setStateDialog(() => selectedType = val!),
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(labelText: 'Category'),
-                  initialValue: selectedCategory,
-                  items: categories
-                      .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-                      .toList(),
-                  onChanged: (val) =>
-                      setStateDialog(() => selectedCategory = val!),
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(labelText: 'Account'),
-                  initialValue: selectedAccountId,
-                  items: accounts.map<DropdownMenuItem<String>>((acc) {
-                    return DropdownMenuItem(
-                      value: acc['acc_id'].toString(),
-                      child: Text(acc['acc_name']),
-                    );
-                  }).toList(),
-                  onChanged: (val) =>
-                      setStateDialog(() => selectedAccountId = val),
-                ),
-              ],
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // ── Title ──────────────────────────────────────────────
+                  TextFormField(
+                    controller: titleController,
+                    decoration: const InputDecoration(labelText: 'Title'),
+                    validator: (val) {
+                      if (val == null || val.trim().isEmpty) {
+                        return 'Title is required';
+                      }
+                      if (val.trim().length < 2) {
+                        return 'Title must be at least 2 characters';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+
+                  // ── Amount ─────────────────────────────────────────────
+                  TextFormField(
+                    controller: amountController,
+                    decoration: const InputDecoration(labelText: 'Amount'),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    validator: (val) {
+                      if (val == null || val.trim().isEmpty) {
+                        return 'Amount is required';
+                      }
+                      final parsed = double.tryParse(val.trim());
+                      if (parsed == null) {
+                        return 'Enter a valid number (e.g. 12.50)';
+                      }
+                      if (parsed <= 0) {
+                        return 'Amount must be greater than zero';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+
+                  // ── Type ───────────────────────────────────────────────
+                  DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(labelText: 'Type'),
+                    value: selectedType,
+                    items: types
+                        .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+                        .toList(),
+                    onChanged: (val) =>
+                        setStateDialog(() => selectedType = val!),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // ── Category ───────────────────────────────────────────
+                  DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(labelText: 'Category'),
+                    value: selectedCategory,
+                    items: categories
+                        .map(
+                          (c) => DropdownMenuItem(value: c, child: Text(c)),
+                        )
+                        .toList(),
+                    onChanged: (val) =>
+                        setStateDialog(() => selectedCategory = val!),
+                  ),
+                ],
+              ),
             ),
           ),
           actions: [
@@ -275,11 +353,11 @@ class _TransactionsPage extends State<TransactionsPage> {
             ),
             ElevatedButton(
               onPressed: () {
-                if (title.isNotEmpty && double.tryParse(price) != null) {
+                if (formKey.currentState!.validate()) {
                   _editTransaction(
                     index,
-                    title,
-                    double.parse(price),
+                    titleController.text.trim(),
+                    double.parse(amountController.text.trim()),
                     selectedType,
                     selectedCategory,
                   );
@@ -330,12 +408,11 @@ class _TransactionsPage extends State<TransactionsPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Top row: title + amount
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              tx.tTitle, // was tx.tCategory
+                              tx.tTitle,
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -356,7 +433,6 @@ class _TransactionsPage extends State<TransactionsPage> {
                           ],
                         ),
                         const SizedBox(height: 6),
-                        // Account + date row
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -388,7 +464,6 @@ class _TransactionsPage extends State<TransactionsPage> {
                           ],
                         ),
                         const SizedBox(height: 4),
-                        // Category row
                         Row(
                           children: [
                             const Icon(
@@ -407,7 +482,6 @@ class _TransactionsPage extends State<TransactionsPage> {
                           ],
                         ),
                         const Divider(height: 16),
-                        // Edit + Delete buttons
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
@@ -418,7 +492,8 @@ class _TransactionsPage extends State<TransactionsPage> {
                             ),
                             const SizedBox(width: 8),
                             TextButton.icon(
-                              onPressed: () => _confirmDeleteTransaction(index),
+                              onPressed: () =>
+                                  _confirmDeleteTransaction(index),
                               icon: const Icon(
                                 Icons.delete,
                                 size: 16,
