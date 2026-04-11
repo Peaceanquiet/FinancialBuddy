@@ -88,7 +88,10 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Colors.deepPurple.shade100,
       appBar: AppBar(
-        title: const Text('Financial Buddy', textScaler: TextScaler.linear(2)),
+        title: const Text(
+          'Financial Destination',
+          textScaler: TextScaler.linear(1.5),
+        ),
         leading: Builder(
           builder: (context) {
             return IconButton(
@@ -100,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         ),
       ),
-      drawer: BuddyDrawer(title: "Home Screen"),
+      drawer: BuddyDrawer(title: "Financial Destination"),
       body: Column(
         children: [
           Text(

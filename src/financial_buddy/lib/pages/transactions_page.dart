@@ -177,7 +177,7 @@ class _TransactionsPage extends State<TransactionsPage> {
                   // ── Type ───────────────────────────────────────────────
                   DropdownButtonFormField<String>(
                     decoration: const InputDecoration(labelText: 'Type'),
-                    value: selectedType,
+                    initialValue: selectedType,
                     items: types
                         .map((t) => DropdownMenuItem(value: t, child: Text(t)))
                         .toList(),
@@ -190,11 +190,9 @@ class _TransactionsPage extends State<TransactionsPage> {
                   // ── Category ───────────────────────────────────────────
                   DropdownButtonFormField<String>(
                     decoration: const InputDecoration(labelText: 'Category'),
-                    value: selectedCategory,
+                    initialValue: selectedCategory,
                     items: categories
-                        .map(
-                          (c) => DropdownMenuItem(value: c, child: Text(c)),
-                        )
+                        .map((c) => DropdownMenuItem(value: c, child: Text(c)))
                         .toList(),
                     onChanged: (val) =>
                         setStateDialog(() => selectedCategory = val!),
@@ -207,7 +205,7 @@ class _TransactionsPage extends State<TransactionsPage> {
                       labelText: 'Account',
                       // Show the error inline via the form validator below
                     ),
-                    value: selectedAccountId,
+                    initialValue: selectedAccountId,
                     hint: const Text('Select an account'),
                     items: accounts.map<DropdownMenuItem<String>>((acc) {
                       return DropdownMenuItem(
@@ -261,12 +259,11 @@ class _TransactionsPage extends State<TransactionsPage> {
     final formKey = GlobalKey<FormState>();
     final tx = transactions[index];
     final titleController = TextEditingController(text: tx.tTitle);
-    final amountController = TextEditingController(
-      text: tx.tAmount.toString(),
-    );
+    final amountController = TextEditingController(text: tx.tAmount.toString());
     String selectedType = tx.tType;
-    String selectedCategory =
-        categories.contains(tx.tCategory) ? tx.tCategory : 'Other';
+    String selectedCategory = categories.contains(tx.tCategory)
+        ? tx.tCategory
+        : 'Other';
 
     showDialog(
       context: context,
@@ -321,7 +318,7 @@ class _TransactionsPage extends State<TransactionsPage> {
                   // ── Type ───────────────────────────────────────────────
                   DropdownButtonFormField<String>(
                     decoration: const InputDecoration(labelText: 'Type'),
-                    value: selectedType,
+                    initialValue: selectedType,
                     items: types
                         .map((t) => DropdownMenuItem(value: t, child: Text(t)))
                         .toList(),
@@ -333,11 +330,9 @@ class _TransactionsPage extends State<TransactionsPage> {
                   // ── Category ───────────────────────────────────────────
                   DropdownButtonFormField<String>(
                     decoration: const InputDecoration(labelText: 'Category'),
-                    value: selectedCategory,
+                    initialValue: selectedCategory,
                     items: categories
-                        .map(
-                          (c) => DropdownMenuItem(value: c, child: Text(c)),
-                        )
+                        .map((c) => DropdownMenuItem(value: c, child: Text(c)))
                         .toList(),
                     onChanged: (val) =>
                         setStateDialog(() => selectedCategory = val!),
@@ -492,8 +487,7 @@ class _TransactionsPage extends State<TransactionsPage> {
                             ),
                             const SizedBox(width: 8),
                             TextButton.icon(
-                              onPressed: () =>
-                                  _confirmDeleteTransaction(index),
+                              onPressed: () => _confirmDeleteTransaction(index),
                               icon: const Icon(
                                 Icons.delete,
                                 size: 16,

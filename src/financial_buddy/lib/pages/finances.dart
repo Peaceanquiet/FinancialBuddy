@@ -123,8 +123,8 @@ class _FinancesPageState extends State<FinancesPage> {
       backgroundColor: Color((Colors.deepPurple.shade200.toARGB32())),
       appBar: AppBar(
         title: const Text(
-          'Financial Buddy',
-          textScaler: TextScaler.linear(2),
+          'Financial Destination',
+          textScaler: TextScaler.linear(1.5),
           textAlign: TextAlign.center,
         ),
         backgroundColor: Color((Colors.white.toARGB32())),
