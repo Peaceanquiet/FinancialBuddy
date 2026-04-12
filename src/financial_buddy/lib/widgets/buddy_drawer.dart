@@ -1,4 +1,3 @@
-import 'package:financial_buddy/pages/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:financial_buddy/utils/user_preferences.dart';
 import 'package:financial_buddy/main.dart';
