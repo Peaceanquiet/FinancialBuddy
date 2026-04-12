@@ -44,7 +44,7 @@ class _LoginPageState extends State<LoginPage> {
           actions: [
             ElevatedButton(
               onPressed: () {
-                savePrefs(uname, upw, {'user_name': uname, 'upw': upw});
+                savePrefs(uname, {'user_name': uname});
                 Navigator.of(context).pop();
               },
               child: Text("Save Email"),
@@ -87,10 +87,11 @@ class _LoginPageState extends State<LoginPage> {
     } on AuthException catch (e) {
       // AuthException covers Supabase-specific errors (wrong password, unverified
       // email, etc.). Show the error message directly from Supabase as a snackbar.
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(e.message)));
+      }
     }
   }
 

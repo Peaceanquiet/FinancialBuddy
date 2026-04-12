@@ -12,7 +12,7 @@ class BuddyDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s_height = MediaQuery.of(context).size.height;
+    final sHeight = MediaQuery.of(context).size.height;
 
     return Drawer(
       backgroundColor: Colors.white,
@@ -54,7 +54,7 @@ class BuddyDrawer extends StatelessWidget {
             },
           ),
 
-          Padding(padding: EdgeInsetsGeometry.all(s_height / 4)),
+          Padding(padding: EdgeInsetsGeometry.all(sHeight / 4)),
           SizedBox(
             height: 30,
             child: ElevatedButton(
