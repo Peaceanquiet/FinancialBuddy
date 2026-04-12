@@ -11,14 +11,9 @@ Future<bool> checkLoggedIn() async {
   return prefs.getBool('isLoggedIn') ?? false;
 }
 
-Future<void> savePrefs(
-  String uname,
-  String pw,
-  Map<String, dynamic> preferences,
-) async {
+Future<void> savePrefs(String uname, Map<String, dynamic> preferences) async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString('user_name', uname);
-  await prefs.setString('upw', pw);
   String preferencesString = jsonEncode(preferences);
   await prefs.setString('user_preferences', preferencesString);
 }
@@ -27,11 +22,10 @@ Future<Map<String, dynamic>> loadPrefs() async {
   final prefs = await SharedPreferences.getInstance();
 
   String? uname = prefs.getString('user_name');
-  String? upw = prefs.getString('upw');
   String? preferencesString = prefs.getString('user_preferences');
   Map<String, dynamic>? preferences = preferencesString != null
       ? jsonDecode(preferencesString)
       : null;
 
-  return {'user_name': uname, 'upw': upw, 'preferences': preferences};
+  return {'user_name': uname, 'preferences': preferences};
 }

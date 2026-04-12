@@ -44,7 +44,7 @@ class _LoginPageState extends State<LoginPage> {
           actions: [
             ElevatedButton(
               onPressed: () {
-                savePrefs(uname, upw, {'user_name': uname, 'upw': upw});
+                savePrefs(uname, {'user_name': uname});
                 Navigator.of(context).pop();
               },
               child: Text("Save Email"),
