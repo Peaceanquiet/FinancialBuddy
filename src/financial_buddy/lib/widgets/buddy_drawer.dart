@@ -1,11 +1,20 @@
+import 'package:financial_buddy/pages/home_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:financial_buddy/utils/user_preferences.dart';
+import 'package:financial_buddy/main.dart';
 
 class BuddyDrawer extends StatelessWidget {
   const BuddyDrawer({super.key, required this.title});
   final String title;
 
+  Future<void> _signOut() async {
+    await supabase.auth.signOut();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final s_height = MediaQuery.of(context).size.height;
+
     return Drawer(
       backgroundColor: Colors.white,
       child: ListView(
@@ -44,6 +53,19 @@ class BuddyDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pushReplacementNamed(context, '/finances');
             },
+          ),
+
+          Padding(padding: EdgeInsetsGeometry.all(s_height / 4)),
+          SizedBox(
+            height: 30,
+            child: ElevatedButton(
+              onPressed: () {
+                setLoggedIn(false);
+                _signOut();
+                Navigator.pushReplacementNamed(context, '/login');
+              },
+              child: Text("Log Out"),
+            ),
           ),
           // Can add more ListTiles here whenever a new navigational
           // point is needed.
