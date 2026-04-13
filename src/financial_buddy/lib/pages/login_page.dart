@@ -30,11 +30,13 @@ class _LoginPageState extends State<LoginPage> {
       // pushReplacementNamed removes the login page from the navigation stack
       // so the user can't press Back to return to it after logging in.
       if (mounted) Navigator.pushReplacementNamed(context, '/home');
-
     } on AuthException catch (e) {
       // AuthException covers Supabase-specific errors (wrong password, unverified
       // email, etc.). Show the error message directly from Supabase as a snackbar.
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)),);
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.message)));
     }
   }
 
@@ -44,7 +46,8 @@ class _LoginPageState extends State<LoginPage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center, // Vertically centers the form
+          mainAxisAlignment:
+              MainAxisAlignment.center, // Vertically centers the form
           children: [
             // Email input — no obscuring needed for email addresses
             TextField(
@@ -60,17 +63,14 @@ class _LoginPageState extends State<LoginPage> {
             ),
 
             // Primary action: triggers the async login flow above
-            ElevatedButton(
-              onPressed: _login,
-              child: const Text('Login'),
-            ),
+            ElevatedButton(onPressed: _login, child: const Text('Login')),
 
             // Secondary action: takes new users to the sign-up page.
             TextButton(
               onPressed: () {
                 Navigator.pushReplacementNamed(context, '/signup');
               },
-              child: const Text('Create account'),
+              child: const Text('Create Account'),
             ),
           ],
         ),
