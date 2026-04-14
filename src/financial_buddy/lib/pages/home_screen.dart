@@ -174,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // ── Accounts ──────────────────────────────────────────────
+            // ----------------------Accounts----------------------
             const Text("Accounts",
                 textScaler: TextScaler.linear(1.55),
                 style: TextStyle(fontSize: 16, decorationThickness: 1.5)),
@@ -287,7 +287,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 24),
 
-            // ── Total Balance ─────────────────────────────────────────
+            // ----------------------Total Balance----------------------
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 20),
@@ -310,7 +310,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 12),
 
-            // ── Income / Expenses ─────────────────────────────────────
+            // ----------------------Income / Expenses----------------------
             Row(
               children: [
                 Expanded(
@@ -326,7 +326,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 20),
 
-            // ── Donut Chart ───────────────────────────────────────────
+            // ----------------------Donut Chart----------------------
             categoryTotals.isNotEmpty
                 ? Container(
                     width: double.infinity,
@@ -371,7 +371,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        // ── Legend ────────────────────────────────────
+                        //----------------------Legend----------------------
                         Wrap(
                           spacing: 12,
                           runSpacing: 8,
