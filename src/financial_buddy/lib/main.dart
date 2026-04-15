@@ -2,6 +2,7 @@ import 'package:financial_buddy/pages/finances.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // Loads environment variables from a .env file
 import 'package:supabase_flutter/supabase_flutter.dart'; // Supabase client for auth and database
+import 'package:financial_buddy/theme/app_theme.dart'; // Custom app theme with colors and styles
 import 'pages/home_screen.dart';
 import 'pages/login_page.dart';
 import 'pages/signup_page.dart';
@@ -34,11 +35,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Financial Buddy',
 
-      // Define the app's color scheme using deep purple as the seed color.
-      // Flutter generates a full Material 3 palette from this single color.
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
+     // Apply the custom dark theme defined in app_theme.dart across the entire app.
+     theme: AppTheme.darkTheme,
 
       // The app always opens on the login page, even if the user has used it before.
       initialRoute: '/login',

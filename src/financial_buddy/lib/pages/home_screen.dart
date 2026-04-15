@@ -2,6 +2,7 @@ import 'package:financial_buddy/main.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:financial_buddy/widgets/buddy_drawer.dart';
+import 'package:financial_buddy/theme/app_theme.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -41,9 +42,14 @@ class _HomeScreenState extends State<HomeScreen> {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+           style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.danger,
+            ),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: AppColors.textWhite),
+            ),
           ),
         ],
       ),
@@ -86,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.deepPurple.shade100,
+      backgroundColor: AppColors.backgroundBlack,
       appBar: AppBar(
         title: const Text(
           'Financial Destination',
@@ -108,8 +114,12 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Text(
             "Accounts",
-            textScaler: TextScaler.linear(1.55),
-            style: TextStyle(fontSize: 16, decorationThickness: 1.5),
+            textScaler: const TextScaler.linear(1.55),
+            style: const TextStyle(
+              fontSize: 16,
+              color: AppColors.textWhite,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           Column(
             children: [
@@ -128,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               height: 50,
                               width: 411,
                               decoration: BoxDecoration(
-                                color: Colors.deepPurpleAccent,
+                                color: AppColors.darkSurface,
                                 borderRadius: BorderRadius.circular(15),
                               ),
                               child: Row(
@@ -136,19 +146,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                   const SizedBox(width: 15),
                                   Text(
                                     acc['acc_name'],
-                                    textScaler: const TextScaler.linear(1.25),
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      color: AppColors.textWhite,
+                                    ),
                                   ),
                                   const Spacer(),
                                   Text(
                                     "\$${acc['balance']}",
-                                    textScaler: const TextScaler.linear(1.25),
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      color: AppColors.textWhite,
+                                    ),
                                   ),
                                   const SizedBox(width: 6),
                                   // DELETE BUTTON
                                   IconButton(
                                     icon: const Icon(
                                       Icons.delete,
-                                      color: Colors.white70,
+                                      color: AppColors.danger,
                                       size: 20,
                                     ),
                                     onPressed: () => _deleteAccount(
@@ -168,8 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 onPressed: () {
                   showModalBottomSheet(
                     context: context,
-                    backgroundColor: Colors.deepPurpleAccent,
-                    barrierColor: Colors.transparent,
+                    backgroundColor: AppColors.darkSurface,
                     isScrollControlled: false,
                     builder: (_) {
                       return Padding(
@@ -208,7 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ElevatedButton(
                               style: ButtonStyle(
                                 backgroundColor: WidgetStatePropertyAll(
-                                  Colors.red,
+                                  AppColors.neonGreen,
                                 ),
                               ),
                               onPressed: () async {

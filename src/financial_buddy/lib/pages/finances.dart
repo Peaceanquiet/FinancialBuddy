@@ -1,6 +1,7 @@
 import 'package:financial_buddy/main.dart';
 import 'package:flutter/material.dart';
 import 'package:financial_buddy/widgets/buddy_drawer.dart';
+import 'package:financial_buddy/theme/app_theme.dart';
 //import 'package:hive_flutter/hive_flutter.dart';
 
 class FinancesPage extends StatefulWidget {
@@ -120,14 +121,15 @@ class _FinancesPageState extends State<FinancesPage> {
     double scrHeight = MediaQuery.sizeOf(context).height;
 
     return Scaffold(
-      backgroundColor: Color((Colors.deepPurple.shade200.toARGB32())),
+      backgroundColor: AppColors.backgroundBlack,
       appBar: AppBar(
         title: const Text(
           'Financial Destination',
           textScaler: TextScaler.linear(1.5),
           textAlign: TextAlign.center,
+          style: TextStyle(color: AppColors.textWhite),
         ),
-        backgroundColor: Color((Colors.white.toARGB32())),
+        backgroundColor: AppColors.backgroundBlack,
         /*****************
         * Hamburger Menu *
         *****************/
@@ -149,11 +151,13 @@ class _FinancesPageState extends State<FinancesPage> {
             width: scrWidth,
             height: scrHeight / 5,
             child: Card(
-              elevation: 10,
+              color: AppColors.darkSurface,
+              elevation: 4,
               child: Column(
                 children: [
                   Text(
                     "Savings Goals",
+                    style: const TextStyle(color: AppColors.textWhite),
                     textAlign: TextAlign.center,
                     textScaler: TextScaler.linear(1.75),
                   ),
@@ -162,6 +166,7 @@ class _FinancesPageState extends State<FinancesPage> {
                     children: [
                       Text(
                         "Goals: ${goals.length}",
+                        style: const TextStyle(color: AppColors.textWhite),
                         textScaler: TextScaler.linear(1.25),
                       ),
                       Spacer(),
@@ -172,16 +177,23 @@ class _FinancesPageState extends State<FinancesPage> {
                             context: context,
                             builder: (context) => StatefulBuilder(
                               builder: (ctx, setStateDialog) => AlertDialog(
-                                title: Text("Add Goal"),
-                                icon: Icon(Icons.monetization_on),
-                                iconColor: Colors.yellow[400],
-                                backgroundColor: Colors.deepPurple[100],
+                                title: const Text(
+                                  "Add Goal",
+                                style: TextStyle(color: AppColors.textWhite),
+                                ),
+                                icon: const Icon(
+                                Icons.monetization_on,
+                                ),
+                                iconColor: AppColors.neonGreen,
                                 content: SingleChildScrollView(
                                   child: Column(
                                     children: [
                                       TextField(
                                         decoration: InputDecoration(
-                                          label: Text("Goal Name"),
+                                          label: const Text(
+                                            "Goal Name",
+                                            style: TextStyle(color: AppColors.textWhite),
+                                          ),
                                         ),
                                         controller: goalName,
                                       ),
@@ -192,7 +204,10 @@ class _FinancesPageState extends State<FinancesPage> {
                                       ),
                                       TextField(
                                         decoration: InputDecoration(
-                                          label: Text("Goal Amount"),
+                                          label: const Text(
+                                            "Goal Amount",
+                                            style: TextStyle(color: AppColors.textWhite),
+                                          ),
                                         ),
                                         controller: goalAmnt,
                                       ),
@@ -223,6 +238,9 @@ class _FinancesPageState extends State<FinancesPage> {
                                         ),
                                       ),
                                       ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: AppColors.neonGreen,
+                                        ),
                                         onPressed: () async {
                                           final goal = BudgetGoal(
                                             goalName: goalName.text,
@@ -240,7 +258,10 @@ class _FinancesPageState extends State<FinancesPage> {
                                           Navigator.pop(context);
                                           await loadGoals();
                                         },
-                                        child: Text("Add Goal"),
+                                        child: const Text(
+                                          "Add Goal",
+                                        style: TextStyle(color: AppColors.textWhite),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -249,10 +270,10 @@ class _FinancesPageState extends State<FinancesPage> {
                             ),
                           );
                         },
-                        icon: Icon(
-                          size: 30,
-                          color: Colors.deepPurple,
+                        icon: const Icon(
                           Icons.add_circle,
+                          size: 30,
+                          color: AppColors.neonGreen,
                         ),
                       ),
                     ],
@@ -277,7 +298,10 @@ class _FinancesPageState extends State<FinancesPage> {
                           Padding(
                             padding: EdgeInsetsGeometry.directional(start: 10),
                           ),
-                          Text('Amount: ${goals[index]['goal_amount']}'),
+                          Text(
+                            goals[index]['goal_name'],
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
                           Spacer(),
                           IconButton(
                             onPressed: () async {
@@ -289,8 +313,11 @@ class _FinancesPageState extends State<FinancesPage> {
                                 context: context,
                                 builder: (context) => StatefulBuilder(
                                   builder: (ctx, setStateDialog) => AlertDialog(
-                                    title: Text("Select Transaction"),
-                                    backgroundColor: Colors.deepPurple[100],
+                                    title: Text(
+                                      "Select Transaction",
+                                      style: Theme.of(context).textTheme.titleMedium,
+                                    ),
+                                    backgroundColor: Theme.of(context).colorScheme.surface,
                                     content: SingleChildScrollView(
                                       child: Column(
                                         children: [
@@ -305,7 +332,8 @@ class _FinancesPageState extends State<FinancesPage> {
                                               >(
                                                 value: txn,
                                                 child: Text(
-                                                  txn['title'] ?? 'Unkown',
+                                                  txn['title'] ?? 'Unknown',
+                                                  style: Theme.of(context).textTheme.bodyMedium,
                                                 ),
                                               );
                                             }).toList(),
