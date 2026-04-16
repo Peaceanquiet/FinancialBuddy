@@ -122,7 +122,7 @@ class _TransactionsPage extends State<TransactionsPage> {
     String selectedType = 'Expense';
     String selectedCategory = 'Food';
     // Track whether account dropdown was touched without a selection
-    bool accountTouched = false;
+    //bool accountTouched = false;
 
     showDialog(
       context: context,
@@ -221,7 +221,7 @@ class _TransactionsPage extends State<TransactionsPage> {
                     },
                     onChanged: (val) => setStateDialog(() {
                       selectedAccountId = val;
-                      accountTouched = true;
+                      //accountTouched = true;
                     }),
                   ),
                 ],
