@@ -109,12 +109,14 @@ class _LoginPageState extends State<LoginPage> {
               controller: _emailController,
               decoration: const InputDecoration(labelText: 'Email'),
             ),
+            Padding(padding: EdgeInsetsGeometry.all(5)),
             // Password input — obscureText hides characters as the user types
             TextField(
               controller: _passwordController,
               obscureText: true,
               decoration: const InputDecoration(labelText: 'Password'),
             ),
+            Padding(padding: EdgeInsetsGeometry.all(5)),
 
             // Primary action: triggers the async login flow above
             ElevatedButton(onPressed: _login, child: const Text('Login')),
