@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:financial_buddy/widgets/buddy_drawer.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:financial_buddy/theme/app_theme.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -66,7 +67,8 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     final balance = accData.fold<double>(
-      0, (sum, acc) => sum + (acc['balance'] as num).toDouble(),
+      0,
+      (sum, acc) => sum + (acc['balance'] as num).toDouble(),
     );
 
     final sortedCats = Map.fromEntries(
@@ -95,9 +97,14 @@ class _HomeScreenState extends State<HomeScreen> {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.danger,
+            ),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: AppColors.textWhite),
+            ),
           ),
         ],
       ),
@@ -125,15 +132,20 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _statCard(String label, String value, Color color) => Container(
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
         decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(14)),
+          color: AppColors.darkSurface,
+          borderRadius: BorderRadius.circular(14),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: const TextStyle(fontSize: 12, color: Colors.black54)),
+            Text(label,
+                style: const TextStyle(fontSize: 12, color: AppColors.textWhite)),
             const SizedBox(height: 4),
-            Text(value,
-                style: TextStyle(
-                    fontSize: 16, fontWeight: FontWeight.w600, color: color)),
+            Text(
+              value,
+              style: TextStyle(
+                  fontSize: 16, fontWeight: FontWeight.w600, color: color),
+            ),
           ],
         ),
       );
@@ -158,7 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final entries = categoryTotals.entries.toList();
 
     return Scaffold(
-      backgroundColor: Colors.deepPurple.shade100,
+      backgroundColor: AppColors.backgroundBlack,
       appBar: AppBar(
         title: const Text('Financial Destination',
             textScaler: TextScaler.linear(1.5)),
@@ -174,10 +186,16 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // ----------------------Accounts----------------------
-            const Text("Accounts",
-                textScaler: TextScaler.linear(1.55),
-                style: TextStyle(fontSize: 16, decorationThickness: 1.5)),
+            // ---------------------- Accounts ----------------------
+            const Text(
+              "Accounts",
+              textScaler: TextScaler.linear(1.55),
+              style: TextStyle(
+                fontSize: 16,
+                color: AppColors.textWhite,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             accountInfo.isEmpty
                 ? const Text("No accounts to display")
                 : SizedBox(
@@ -192,23 +210,38 @@ class _HomeScreenState extends State<HomeScreen> {
                             height: 50,
                             width: 411,
                             decoration: BoxDecoration(
-                              color: Colors.deepPurpleAccent,
+                              color: AppColors.darkSurface,
                               borderRadius: BorderRadius.circular(15),
                             ),
                             child: Row(
                               children: [
                                 const SizedBox(width: 15),
-                                Text(acc['acc_name'],
-                                    textScaler: const TextScaler.linear(1.25)),
+                                Text(
+                                  acc['acc_name'],
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    color: AppColors.textWhite,
+                                  ),
+                                ),
                                 const Spacer(),
-                                Text("\$${acc['balance']}",
-                                    textScaler: const TextScaler.linear(1.25)),
+                                Text(
+                                  "\$${acc['balance']}",
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    color: AppColors.textWhite,
+                                  ),
+                                ),
                                 const SizedBox(width: 6),
                                 IconButton(
-                                  icon: const Icon(Icons.delete,
-                                      color: Colors.white70, size: 20),
+                                  icon: const Icon(
+                                    Icons.delete,
+                                    color: AppColors.danger,
+                                    size: 20,
+                                  ),
                                   onPressed: () => _deleteAccount(
-                                      acc['acc_id'].toString(), acc['acc_name']),
+                                    acc['acc_id'].toString(),
+                                    acc['acc_name'],
+                                  ),
                                 ),
                               ],
                             ),
@@ -218,11 +251,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
             const Padding(padding: EdgeInsets.all(5)),
+
+            // ---------------------- Add Account Button ----------------------
             ElevatedButton(
               onPressed: () => showModalBottomSheet(
                 context: context,
-                backgroundColor: Colors.deepPurpleAccent,
-                barrierColor: Colors.transparent,
+                backgroundColor: AppColors.darkSurface,
                 isScrollControlled: true,
                 builder: (_) => Padding(
                   padding: EdgeInsets.only(
@@ -234,27 +268,33 @@ class _HomeScreenState extends State<HomeScreen> {
                       TextFormField(
                         controller: accNameCtrlr,
                         decoration: const InputDecoration(
-                            hintText: "Account Name",
-                            contentPadding: EdgeInsets.all(10)),
+                          hintText: "Account Name",
+                          contentPadding: EdgeInsets.all(10),
+                        ),
                       ),
                       const Padding(padding: EdgeInsets.all(5)),
                       TextFormField(
                         controller: accTypeCtrlr,
                         decoration: const InputDecoration(
-                            hintText: "Account Type (Checking, Savings, Etc.)",
-                            contentPadding: EdgeInsets.all(10)),
+                          hintText: "Account Type (Checking, Savings, Etc.)",
+                          contentPadding: EdgeInsets.all(10),
+                        ),
                       ),
                       const Padding(padding: EdgeInsets.all(5)),
                       TextFormField(
                         controller: accBlncCtrlr,
                         decoration: const InputDecoration(
-                            hintText: "Initial Balance",
-                            contentPadding: EdgeInsets.all(10)),
+                          hintText: "Initial Balance",
+                          contentPadding: EdgeInsets.all(10),
+                        ),
                       ),
                       const Padding(padding: EdgeInsets.all(25)),
                       ElevatedButton(
-                        style: const ButtonStyle(
-                            backgroundColor: WidgetStatePropertyAll(Colors.red)),
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStatePropertyAll(
+                            AppColors.neonGreen,
+                          ),
+                        ),
                         onPressed: () async {
                           try {
                             await supabase.from('Accounts').insert({
@@ -287,61 +327,75 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 24),
 
-            // ----------------------Total Balance----------------------
+            // ---------------------- Total Balance ----------------------
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 20),
               decoration: BoxDecoration(
-                color: Colors.deepPurple,
+                color: AppColors.darkSurface,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
                 children: [
                   const Text('Total Balance',
-                      style: TextStyle(fontSize: 13, color: Colors.white70)),
+                      style:
+                          TextStyle(fontSize: 13, color: AppColors.textWhite)),
                   const SizedBox(height: 6),
-                  Text('\$${totalBalance.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white)),
+                  Text(
+                    '\$${totalBalance.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textWhite,
+                    ),
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 12),
 
-            // ----------------------Income / Expenses----------------------
+            // ---------------------- Income / Expenses ----------------------
             Row(
               children: [
                 Expanded(
-                    child: _statCard('Income',
-                        '\$${totalIncome.toStringAsFixed(2)}',
-                        Colors.green.shade800)),
+                  child: _statCard(
+                    'Income',
+                    '\$${totalIncome.toStringAsFixed(2)}',
+                    Colors.green.shade400,
+                  ),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
-                    child: _statCard('Expenses',
-                        '\$${totalExpenses.toStringAsFixed(2)}',
-                        Colors.red.shade800)),
+                  child: _statCard(
+                    'Expenses',
+                    '\$${totalExpenses.toStringAsFixed(2)}',
+                    AppColors.danger,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 20),
 
-            // ----------------------Donut Chart----------------------
+            // ---------------------- Donut Chart ----------------------
             categoryTotals.isNotEmpty
                 ? Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16)),
+                      color: AppColors.darkSurface,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     child: Column(
                       children: [
-                        const Text('Spending by Category',
-                            style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 0.5,
-                                color: Colors.deepPurple)),
+                        const Text(
+                          'Spending by Category',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
+                            color: AppColors.textWhite,
+                          ),
+                        ),
                         const SizedBox(height: 16),
                         SizedBox(
                           height: 220,
@@ -362,16 +416,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                   radius: 45,
                                   title: '${pct.toStringAsFixed(0)}%',
                                   titleStyle: const TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white),
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
                                 );
                               }).toList(),
                             ),
                           ),
                         ),
                         const SizedBox(height: 16),
-                        //----------------------Legend----------------------
+                        // ---------------------- Legend ----------------------
                         Wrap(
                           spacing: 12,
                           runSpacing: 8,
@@ -394,7 +449,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Text(
                                   '${cat.key}  \$${cat.value.toStringAsFixed(0)}',
                                   style: const TextStyle(
-                                      fontSize: 12, color: Colors.black54),
+                                    fontSize: 12,
+                                    color: AppColors.textWhite,
+                                  ),
                                 ),
                               ],
                             );
@@ -407,15 +464,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16)),
+                      color: AppColors.darkSurface,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     child: const Column(
                       children: [
                         Icon(Icons.pie_chart_outline,
-                            size: 40, color: Colors.deepPurple),
+                            size: 40, color: AppColors.textWhite),
                         SizedBox(height: 8),
                         Text('No expense transactions yet',
-                            style: TextStyle(color: Colors.black54)),
+                            style:
+                                TextStyle(color: AppColors.textWhite)),
                       ],
                     ),
                   ),

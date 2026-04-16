@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:financial_buddy/utils/user_preferences.dart';
 import 'package:financial_buddy/main.dart';
+import 'package:financial_buddy/theme/app_theme.dart';
 
 class BuddyDrawer extends StatelessWidget {
   const BuddyDrawer({super.key, required this.title});
@@ -15,15 +16,16 @@ class BuddyDrawer extends StatelessWidget {
     final sHeight = MediaQuery.of(context).size.height;
 
     return Drawer(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.darkSurface,
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
           DrawerHeader(
             // This creates that pretty little box, which I believe can house
             // some images later on.
-            decoration: BoxDecoration(color: Colors.deepPurple),
+            decoration: BoxDecoration(color: AppColors.secondaryPurple),
             child: Text(
+              style: const TextStyle(color: AppColors.textWhite),
               title,
               textScaler: TextScaler.linear(1.4),
               textAlign: TextAlign.center,

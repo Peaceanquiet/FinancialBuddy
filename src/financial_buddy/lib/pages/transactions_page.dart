@@ -3,6 +3,7 @@ import 'package:financial_buddy/widgets/transaction.dart';
 import 'package:financial_buddy/main.dart';
 import 'expense_actions.dart';
 import 'package:financial_buddy/widgets/buddy_drawer.dart';
+import 'package:financial_buddy/theme/app_theme.dart';
 
 class TransactionsPage extends StatefulWidget {
   const TransactionsPage({super.key});
@@ -101,12 +102,17 @@ class _TransactionsPage extends State<TransactionsPage> {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.danger,
+            ),
             onPressed: () {
               Navigator.of(ctx).pop();
               _deleteTransaction(index);
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: AppColors.textWhite),
+              ),
           ),
         ],
       ),
@@ -366,16 +372,20 @@ class _TransactionsPage extends State<TransactionsPage> {
       ),
     );
   }
+  //
+  //
+
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.deepPurple.shade100,
+      backgroundColor: AppColors.backgroundBlack,
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu),
-            onPressed: () => Scaffold.of(context).openDrawer(),
+             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
         title: const Text('Transactions'),
@@ -390,11 +400,7 @@ class _TransactionsPage extends State<TransactionsPage> {
               itemBuilder: (context, index) {
                 final tx = transactions[index];
                 return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  elevation: 3,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
+                  color: AppColors.darkSurface,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -421,8 +427,8 @@ class _TransactionsPage extends State<TransactionsPage> {
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: tx.tType == 'Income'
-                                    ? Colors.green
-                                    : Colors.redAccent,
+                                  ? AppColors.neonGreen
+                                  : AppColors.danger,
                               ),
                             ),
                           ],
@@ -436,14 +442,14 @@ class _TransactionsPage extends State<TransactionsPage> {
                                 const Icon(
                                   Icons.account_balance_wallet,
                                   size: 14,
-                                  color: Colors.deepPurple,
+                                  color: AppColors.accentBlue,
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
                                   tx.tAccount,
                                   style: const TextStyle(
                                     fontSize: 13,
-                                    color: Colors.deepPurple,
+                                    color: AppColors.accentBlue,
                                   ),
                                 ),
                               ],
@@ -452,7 +458,7 @@ class _TransactionsPage extends State<TransactionsPage> {
                               '${tx.tDate.month}/${tx.tDate.day}/${tx.tDate.year}',
                               style: const TextStyle(
                                 fontSize: 13,
-                                color: Colors.grey,
+                                color: AppColors.mutedText,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -464,38 +470,44 @@ class _TransactionsPage extends State<TransactionsPage> {
                             const Icon(
                               Icons.category,
                               size: 14,
-                              color: Colors.black54,
+                              color: AppColors.mutedText,
                             ),
                             const SizedBox(width: 4),
                             Text(
                               tx.tCategory,
                               style: const TextStyle(
                                 fontSize: 13,
-                                color: Colors.black54,
+                                color: AppColors.mutedText,
                               ),
                             ),
                           ],
                         ),
-                        const Divider(height: 16),
+                        const Divider(),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             TextButton.icon(
                               onPressed: () => _showEditExpenseDialog(index),
-                              icon: const Icon(Icons.edit, size: 16),
-                              label: const Text('Edit'),
+                              icon: const Icon(
+                                Icons.edit,
+                                size: 16,
+                                color: AppColors.accentBlue,
+                              ),
+                              label: const Text(
+                                'Edit',
+                                style: TextStyle(color: AppColors.accentBlue),
+                              ),
                             ),
-                            const SizedBox(width: 8),
                             TextButton.icon(
                               onPressed: () => _confirmDeleteTransaction(index),
                               icon: const Icon(
                                 Icons.delete,
                                 size: 16,
-                                color: Colors.redAccent,
+                                color: AppColors.danger,
                               ),
                               label: const Text(
                                 'Delete',
-                                style: TextStyle(color: Colors.redAccent),
+                                style: TextStyle(color: AppColors.danger),
                               ),
                             ),
                           ],
