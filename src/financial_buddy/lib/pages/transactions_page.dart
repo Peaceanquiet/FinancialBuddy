@@ -16,6 +16,8 @@ class _TransactionsPage extends State<TransactionsPage> {
   final List<Transaction> transactions = [];
   List accounts = [];
 
+  String selectedCategoryFilter = 'All';
+
   final List<String> categories = [
     'Food',
     'Transport',
@@ -102,9 +104,7 @@ class _TransactionsPage extends State<TransactionsPage> {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.danger,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
             onPressed: () {
               Navigator.of(ctx).pop();
               _deleteTransaction(index);
@@ -112,7 +112,7 @@ class _TransactionsPage extends State<TransactionsPage> {
             child: const Text(
               'Delete',
               style: TextStyle(color: AppColors.textWhite),
-              ),
+            ),
           ),
         ],
       ),
@@ -375,8 +375,6 @@ class _TransactionsPage extends State<TransactionsPage> {
   //
   //
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -385,9 +383,24 @@ class _TransactionsPage extends State<TransactionsPage> {
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu),
-             onPressed: () => Scaffold.of(context).openDrawer(),
+            onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
+        actions: [
+          //Dropdown Menu filter
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.filter_list),
+            onSelected: (value) {
+              setState(() {
+                selectedCategoryFilter = value;
+              });
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(value: 'All', child: Text("All")),
+              ...categories.map((c) => PopupMenuItem(value: c, child: Text(c))),
+            ],
+          ),
+        ],
         title: const Text('Transactions'),
         centerTitle: true,
       ),
@@ -427,8 +440,8 @@ class _TransactionsPage extends State<TransactionsPage> {
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: tx.tType == 'Income'
-                                  ? AppColors.neonGreen
-                                  : AppColors.danger,
+                                    ? AppColors.neonGreen
+                                    : AppColors.danger,
                               ),
                             ),
                           ],
@@ -518,6 +531,7 @@ class _TransactionsPage extends State<TransactionsPage> {
                 );
               },
             ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddExpenseDialog,
         child: const Icon(Icons.add),
