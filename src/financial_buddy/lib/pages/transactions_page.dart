@@ -411,8 +411,8 @@ class _TransactionsPage extends State<TransactionsPage> {
         centerTitle: true,
       ),
       drawer: BuddyDrawer(title: "Transactions"),
-      body: transactions.isEmpty
-          ? const Center(child: Text('No transactions yet.'))
+      body: filteredTransactions.isEmpty
+          ? const Center(child: Text('No matching transactions.'))
           : ListView.builder(
               padding: const EdgeInsets.all(12),
               itemCount: filteredTransactions.length,
