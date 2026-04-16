@@ -377,6 +377,12 @@ class _TransactionsPage extends State<TransactionsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final filteredTransactions = selectedCategoryFilter == 'All'
+        ? transactions
+        : transactions
+              .where((tx) => tx.tCategory == selectedCategoryFilter)
+              .toList();
+
     return Scaffold(
       backgroundColor: AppColors.backgroundBlack,
       appBar: AppBar(
@@ -409,9 +415,9 @@ class _TransactionsPage extends State<TransactionsPage> {
           ? const Center(child: Text('No transactions yet.'))
           : ListView.builder(
               padding: const EdgeInsets.all(12),
-              itemCount: transactions.length,
+              itemCount: filteredTransactions.length,
               itemBuilder: (context, index) {
-                final tx = transactions[index];
+                final tx = filteredTransactions[index];
                 return Card(
                   color: AppColors.darkSurface,
                   child: Padding(
