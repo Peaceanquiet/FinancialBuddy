@@ -29,7 +29,6 @@ class _TransactionsPage extends State<TransactionsPage> {
     'Other',
   ];
   final List<String> types = ['Expense', 'Income'];
-
   Future<void> _loadTransactions() async {
     final loaded = await loadTransactions();
     setState(() {
@@ -68,29 +67,22 @@ class _TransactionsPage extends State<TransactionsPage> {
   }
 
   void _editTransaction(
-    int index,
+    Transaction tx,
     String newTitle,
     double newAmount,
     String newType,
     String newCategory,
   ) async {
-    await editTransaction(
-      transactions,
-      index,
-      newTitle,
-      newAmount,
-      newType,
-      newCategory,
-    );
+    await editTransaction(tx, newTitle, newAmount, newType, newCategory);
     await _loadTransactions();
   }
 
-  void _deleteTransaction(int index) async {
-    await deleteTransaction(transactions, index);
+  void _deleteTransaction(Transaction tx) async {
+    await deleteTransaction(tx);
     await _loadTransactions();
   }
 
-  void _confirmDeleteTransaction(int index) {
+  void _confirmDeleteTransaction(Transaction tx) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -107,7 +99,7 @@ class _TransactionsPage extends State<TransactionsPage> {
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
             onPressed: () {
               Navigator.of(ctx).pop();
-              _deleteTransaction(index);
+              _deleteTransaction(tx);
             },
             child: const Text(
               'Delete',
@@ -261,9 +253,8 @@ class _TransactionsPage extends State<TransactionsPage> {
     );
   }
 
-  void _showEditExpenseDialog(int index) {
+  void _showEditExpenseDialog(Transaction tx) {
     final formKey = GlobalKey<FormState>();
-    final tx = transactions[index];
     final titleController = TextEditingController(text: tx.tTitle);
     final amountController = TextEditingController(text: tx.tAmount.toString());
     String selectedType = tx.tType;
@@ -356,7 +347,7 @@ class _TransactionsPage extends State<TransactionsPage> {
               onPressed: () {
                 if (formKey.currentState!.validate()) {
                   _editTransaction(
-                    index,
+                    tx,
                     titleController.text.trim(),
                     double.parse(amountController.text.trim()),
                     selectedType,
@@ -506,7 +497,7 @@ class _TransactionsPage extends State<TransactionsPage> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             TextButton.icon(
-                              onPressed: () => _showEditExpenseDialog(index),
+                              onPressed: () => _showEditExpenseDialog(tx),
                               icon: const Icon(
                                 Icons.edit,
                                 size: 16,
@@ -518,7 +509,7 @@ class _TransactionsPage extends State<TransactionsPage> {
                               ),
                             ),
                             TextButton.icon(
-                              onPressed: () => _confirmDeleteTransaction(index),
+                              onPressed: () => _confirmDeleteTransaction(tx),
                               icon: const Icon(
                                 Icons.delete,
                                 size: 16,
