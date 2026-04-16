@@ -120,7 +120,7 @@ class _TransactionsPage extends State<TransactionsPage> {
     String selectedType = 'Expense';
     String selectedCategory = 'Food';
     // Track whether account dropdown was touched without a selection
-    bool accountTouched = false;
+    bool accountTouched = false; // <-VSCode lies, it's used on line 222
 
     showDialog(
       context: context,
