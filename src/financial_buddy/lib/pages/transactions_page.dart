@@ -16,6 +16,8 @@ class _TransactionsPage extends State<TransactionsPage> {
   final List<Transaction> transactions = [];
   List accounts = [];
 
+  String selectedCategoryFilter = 'All';
+
   final List<String> categories = [
     'Food',
     'Transport',
@@ -27,7 +29,6 @@ class _TransactionsPage extends State<TransactionsPage> {
     'Other',
   ];
   final List<String> types = ['Expense', 'Income'];
-
   Future<void> _loadTransactions() async {
     final loaded = await loadTransactions();
     setState(() {
@@ -66,29 +67,22 @@ class _TransactionsPage extends State<TransactionsPage> {
   }
 
   void _editTransaction(
-    int index,
+    Transaction tx,
     String newTitle,
     double newAmount,
     String newType,
     String newCategory,
   ) async {
-    await editTransaction(
-      transactions,
-      index,
-      newTitle,
-      newAmount,
-      newType,
-      newCategory,
-    );
+    await editTransaction(tx, newTitle, newAmount, newType, newCategory);
     await _loadTransactions();
   }
 
-  void _deleteTransaction(int index) async {
-    await deleteTransaction(transactions, index);
+  void _deleteTransaction(Transaction tx) async {
+    await deleteTransaction(tx);
     await _loadTransactions();
   }
 
-  void _confirmDeleteTransaction(int index) {
+  void _confirmDeleteTransaction(Transaction tx) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -102,17 +96,15 @@ class _TransactionsPage extends State<TransactionsPage> {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.danger,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.danger),
             onPressed: () {
               Navigator.of(ctx).pop();
-              _deleteTransaction(index);
+              _deleteTransaction(tx);
             },
             child: const Text(
               'Delete',
               style: TextStyle(color: AppColors.textWhite),
-              ),
+            ),
           ),
         ],
       ),
@@ -128,7 +120,7 @@ class _TransactionsPage extends State<TransactionsPage> {
     String selectedType = 'Expense';
     String selectedCategory = 'Food';
     // Track whether account dropdown was touched without a selection
-    //bool accountTouched = false;
+    bool accountTouched = false; // <-VSCode lies, it's used on line 222
 
     showDialog(
       context: context,
@@ -227,7 +219,7 @@ class _TransactionsPage extends State<TransactionsPage> {
                     },
                     onChanged: (val) => setStateDialog(() {
                       selectedAccountId = val;
-                      //accountTouched = true;
+                      accountTouched = true;
                     }),
                   ),
                 ],
@@ -261,9 +253,8 @@ class _TransactionsPage extends State<TransactionsPage> {
     );
   }
 
-  void _showEditExpenseDialog(int index) {
+  void _showEditExpenseDialog(Transaction tx) {
     final formKey = GlobalKey<FormState>();
-    final tx = transactions[index];
     final titleController = TextEditingController(text: tx.tTitle);
     final amountController = TextEditingController(text: tx.tAmount.toString());
     String selectedType = tx.tType;
@@ -356,7 +347,7 @@ class _TransactionsPage extends State<TransactionsPage> {
               onPressed: () {
                 if (formKey.currentState!.validate()) {
                   _editTransaction(
-                    index,
+                    tx,
                     titleController.text.trim(),
                     double.parse(amountController.text.trim()),
                     selectedType,
@@ -375,30 +366,49 @@ class _TransactionsPage extends State<TransactionsPage> {
   //
   //
 
-
-
   @override
   Widget build(BuildContext context) {
+    final filteredTransactions = selectedCategoryFilter == 'All'
+        ? transactions
+        : transactions
+              .where((tx) => tx.tCategory == selectedCategoryFilter)
+              .toList();
+
     return Scaffold(
       backgroundColor: AppColors.backgroundBlack,
       appBar: AppBar(
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu),
-             onPressed: () => Scaffold.of(context).openDrawer(),
+            onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
+        actions: [
+          //Dropdown Menu filter
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.filter_list),
+            onSelected: (value) {
+              setState(() {
+                selectedCategoryFilter = value;
+              });
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(value: 'All', child: Text("All")),
+              ...categories.map((c) => PopupMenuItem(value: c, child: Text(c))),
+            ],
+          ),
+        ],
         title: const Text('Transactions'),
         centerTitle: true,
       ),
       drawer: BuddyDrawer(title: "Transactions"),
-      body: transactions.isEmpty
-          ? const Center(child: Text('No transactions yet.'))
+      body: filteredTransactions.isEmpty
+          ? const Center(child: Text('No matching transactions.'))
           : ListView.builder(
               padding: const EdgeInsets.all(12),
-              itemCount: transactions.length,
+              itemCount: filteredTransactions.length,
               itemBuilder: (context, index) {
-                final tx = transactions[index];
+                final tx = filteredTransactions[index];
                 return Card(
                   color: AppColors.darkSurface,
                   child: Padding(
@@ -427,8 +437,8 @@ class _TransactionsPage extends State<TransactionsPage> {
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: tx.tType == 'Income'
-                                  ? AppColors.neonGreen
-                                  : AppColors.danger,
+                                    ? AppColors.neonGreen
+                                    : AppColors.danger,
                               ),
                             ),
                           ],
@@ -487,7 +497,7 @@ class _TransactionsPage extends State<TransactionsPage> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             TextButton.icon(
-                              onPressed: () => _showEditExpenseDialog(index),
+                              onPressed: () => _showEditExpenseDialog(tx),
                               icon: const Icon(
                                 Icons.edit,
                                 size: 16,
@@ -499,7 +509,7 @@ class _TransactionsPage extends State<TransactionsPage> {
                               ),
                             ),
                             TextButton.icon(
-                              onPressed: () => _confirmDeleteTransaction(index),
+                              onPressed: () => _confirmDeleteTransaction(tx),
                               icon: const Icon(
                                 Icons.delete,
                                 size: 16,
@@ -518,6 +528,7 @@ class _TransactionsPage extends State<TransactionsPage> {
                 );
               },
             ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddExpenseDialog,
         child: const Icon(Icons.add),
