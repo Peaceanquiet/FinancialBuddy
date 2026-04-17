@@ -23,7 +23,7 @@ class BuddyDrawer extends StatelessWidget {
           DrawerHeader(
             // This creates that pretty little box, which I believe can house
             // some images later on.
-            decoration: BoxDecoration(color: AppColors.secondaryPurple),
+            decoration: BoxDecoration(color: AppColors.accentBackgroundB),
             child: Text(
               style: const TextStyle(color: AppColors.textWhite),
               title,

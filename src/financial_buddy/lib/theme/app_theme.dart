@@ -14,6 +14,7 @@ class AppColors {
   static const Color secondaryPurple = Color(0xFF5D3FD3); // supporting color
   static const Color neonGreen = Color(0xFF39FF14); // CTA / success
   static const Color backgroundBlack = Color(0xFF000000); // app background
+  static const Color accentBackgroundB = Color(0xFF1A1A1A); // alternate background for contrast
   static const Color textWhite = Color(0xFFFFFFFF); // main text
 
   // Extra helper colors for dark UI surfaces
