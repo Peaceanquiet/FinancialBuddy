@@ -6,7 +6,11 @@ import 'package:financial_buddy/widgets/buddy_drawer.dart';
 import 'package:financial_buddy/theme/app_theme.dart';
 
 class TransactionsPage extends StatefulWidget {
-  const TransactionsPage({super.key});
+  //const TransactionsPage({super.key});
+  final String? filterAccountId;
+  final String? filterAccountName;
+  const TransactionsPage({super.key, this.filterAccountId, this.filterAccountName});
+
 
   @override
   State<TransactionsPage> createState() => _TransactionsPage();
@@ -30,12 +34,12 @@ class _TransactionsPage extends State<TransactionsPage> {
   ];
   final List<String> types = ['Expense', 'Income'];
   Future<void> _loadTransactions() async {
-    final loaded = await loadTransactions();
-    setState(() {
-      transactions.clear();
-      transactions.addAll(loaded);
-    });
-  }
+  final loaded = await loadTransactions(accountId: widget.filterAccountId);
+  setState(() {
+    transactions.clear();
+    transactions.addAll(loaded);
+  });
+}
 
   Future<void> _loadAccounts() async {
     final user = supabase.auth.currentUser;
@@ -398,7 +402,7 @@ class _TransactionsPage extends State<TransactionsPage> {
             ],
           ),
         ],
-        title: const Text('Transactions'),
+        title: Text(widget.filterAccountName ?? 'Transactions'),
         centerTitle: true,
       ),
       drawer: BuddyDrawer(title: "Transactions"),

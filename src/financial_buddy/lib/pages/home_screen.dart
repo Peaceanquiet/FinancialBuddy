@@ -1,4 +1,5 @@
 import 'package:financial_buddy/main.dart';
+import 'transactions_page.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:financial_buddy/widgets/buddy_drawer.dart';
@@ -206,6 +207,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         final acc = accountInfo[index];
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: GestureDetector(
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => TransactionsPage(
+                                  filterAccountId: acc['acc_id'].toString(),
+                                  filterAccountName: acc['acc_name'],
+                                ),
+                              ),
+                            ),
                           child: Container(
                             height: 50,
                             width: 411,
@@ -243,7 +254,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     acc['acc_name'],
                                   ),
                                 ),
-                              ],
+                               ],
+                              ),
                             ),
                           ),
                         );

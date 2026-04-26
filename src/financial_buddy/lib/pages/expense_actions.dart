@@ -65,15 +65,18 @@ Future<Transaction> addTransaction(
   }
 }
 
-Future<List<Transaction>> loadTransactions() async {
+Future<List<Transaction>> loadTransactions({String? accountId}) async {
   try {
     final supabase = Supabase.instance.client;
     final user = supabase.auth.currentUser;
-    final response = await supabase
+    var query = supabase
         .from('transactions')
         .select('*, Accounts(acc_name)')
         .eq('user_id', user!.id);
 
+    if (accountId != null) query = query.eq('account_id', accountId);
+
+    final response = await query;
     return response.map<Transaction>((row) {
       final accName = row['Accounts']?['acc_name'] ?? 'Unknown';
       return Transaction(
