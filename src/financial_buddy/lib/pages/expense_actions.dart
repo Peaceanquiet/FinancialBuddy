@@ -94,3 +94,23 @@ Future<List<Transaction>> loadTransactions({String? accountId}) async {
     rethrow;
   }
 }
+Future<List<String>> loadCategories() async {
+  final supabase = Supabase.instance.client;
+  final user = supabase.auth.currentUser;
+
+  const defaults = ['Food', 'Transport', 'Housing', 'Entertainment', 'Health', 'Shopping', 'Salary', 'Other'];
+
+  final response = await supabase
+      .from('categories')
+      .select('name')
+      .eq('user_id', user!.id);
+
+  final custom = response.map<String>((r) => r['name'] as String).toList();
+  return {...defaults, ...custom}.toList();
+}
+
+Future<void> saveCategory(String name) async {
+  final supabase = Supabase.instance.client;
+  final user = supabase.auth.currentUser;
+  await supabase.from('categories').insert({'user_id': user!.id, 'name': name});
+}

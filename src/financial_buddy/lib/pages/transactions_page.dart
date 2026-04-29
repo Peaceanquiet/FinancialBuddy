@@ -22,16 +22,7 @@ class _TransactionsPage extends State<TransactionsPage> {
 
   String selectedCategoryFilter = 'All';
 
-  final List<String> categories = [
-    'Food',
-    'Transport',
-    'Housing',
-    'Entertainment',
-    'Health',
-    'Shopping',
-    'Salary',
-    'Other',
-  ];
+  List<String> categories = [];//we'll store custom categories here
   final List<String> types = ['Expense', 'Income'];
   Future<void> _loadTransactions() async {
   final loaded = await loadTransactions(accountId: widget.filterAccountId);
@@ -40,6 +31,10 @@ class _TransactionsPage extends State<TransactionsPage> {
     transactions.addAll(loaded);
   });
 }
+  Future<void> _loadCategories() async {
+    final loaded = await loadCategories();
+    setState(() => categories = loaded);
+  }
 
   Future<void> _loadAccounts() async {
     final user = supabase.auth.currentUser;
@@ -57,6 +52,7 @@ class _TransactionsPage extends State<TransactionsPage> {
     super.initState();
     _loadTransactions();
     _loadAccounts();
+    _loadCategories(); // add this
   }
 
   void _addTransaction(
@@ -196,8 +192,14 @@ class _TransactionsPage extends State<TransactionsPage> {
                     items: categories
                         .map((c) => DropdownMenuItem(value: c, child: Text(c)))
                         .toList(),
-                    onChanged: (val) =>
-                        setStateDialog(() => selectedCategory = val!),
+                    onChanged: (val) async {
+                      if (val == 'Other') {
+                        final newCat = await _showCustomCategoryDialog();
+                        if (newCat != null) setStateDialog(() => selectedCategory = newCat);
+                      } else {
+                        setStateDialog(() => selectedCategory = val!);
+                      }
+                    },
                   ),
                   const SizedBox(height: 12),
 
@@ -335,8 +337,14 @@ class _TransactionsPage extends State<TransactionsPage> {
                     items: categories
                         .map((c) => DropdownMenuItem(value: c, child: Text(c)))
                         .toList(),
-                    onChanged: (val) =>
-                        setStateDialog(() => selectedCategory = val!),
+                    onChanged: (val) async {
+                      if (val == 'Other') {
+                        final newCat = await _showCustomCategoryDialog();
+                        if (newCat != null) setStateDialog(() => selectedCategory = newCat);
+                      } else {
+                        setStateDialog(() => selectedCategory = val!);
+                      }
+                    },
                   ),
                 ],
               ),
@@ -367,8 +375,56 @@ class _TransactionsPage extends State<TransactionsPage> {
       ),
     );
   }
-  //
-  //
+      Future<String?> _showCustomCategoryDialog() async {
+      final ctrl = TextEditingController();
+      final formKey = GlobalKey<FormState>();
+
+      return showDialog<String>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('New Category'),
+          content: Form(
+            key: formKey,
+            child: TextFormField(
+              controller: ctrl,
+              autofocus: true,
+              decoration: const InputDecoration(labelText: 'Category name'),
+              validator: (val) {
+                if (val == null || val.trim().isEmpty) return 'Name is required';
+                if (val.trim().length < 2) return 'Must be at least 2 characters';
+                if (categories.contains(val.trim())) return 'Category already exists';
+                return null;
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (formKey.currentState!.validate()) {
+                  final name = ctrl.text.trim();
+                  try {
+                    await saveCategory(name);
+                    await _loadCategories();
+                    if (ctx.mounted) Navigator.pop(ctx, name);
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error: $e'),
+                          backgroundColor: AppColors.danger),
+                    );
+                  }
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      );
+  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -541,3 +597,4 @@ class _TransactionsPage extends State<TransactionsPage> {
     );
   }
 }
+
