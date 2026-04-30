@@ -5,6 +5,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:financial_buddy/widgets/buddy_drawer.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:financial_buddy/theme/app_theme.dart';
+import 'package:financial_buddy/widgets/neon_cards.dart';
+import 'package:financial_buddy/widgets/gradient_button.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -100,12 +103,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.danger,
+              foregroundColor: AppColors.textWhite,
             ),
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: AppColors.textWhite),
-            ),
+            child: const Text('Delete'),
           ),
         ],
       ),
@@ -130,26 +131,28 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Widget _statCard(String label, String value, Color color) => Container(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
-        decoration: BoxDecoration(
-          color: AppColors.darkSurface,
-          borderRadius: BorderRadius.circular(14),
+  Widget _statCard(String label, String value, Color color) => NeonCard(
+    gradient: AppGradients.cardGradient,
+    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 12, color: AppColors.textWhite),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label,
-                style: const TextStyle(fontSize: 12, color: AppColors.textWhite)),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              style: TextStyle(
-                  fontSize: 16, fontWeight: FontWeight.w600, color: color),
-            ),
-          ],
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: color,
+          ),
         ),
-      );
+      ],
+    ),
+  );
 
   @override
   void initState() {
@@ -166,6 +169,14 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
+  List<Color> chartColors = [
+    AppColors.primaryPink,
+    AppColors.accentBlue,
+    AppColors.neonGreen,
+    AppColors.primaryPink.withValues(alpha: 0.7),
+    AppColors.accentBlue.withValues(alpha: 0.7),
+  ];
+
   @override
   Widget build(BuildContext context) {
     final entries = categoryTotals.entries.toList();
@@ -173,8 +184,8 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: AppColors.backgroundBlack,
       appBar: AppBar(
-        title: const Text('Financial Destination',
-            textScaler: TextScaler.linear(1.5)),
+        title: const Text(' '),
+        centerTitle: true,
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu),
@@ -187,6 +198,204 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+                // ---------------------- Greeting ----------------------
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Good Morning,',
+                    style: TextStyle(
+                      color: AppColors.textWhite,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    user?.email ?? 'User',
+                    style: const TextStyle(
+                      color: AppColors.accentBlue,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Your financial summary',
+                    style: TextStyle(
+                      color: AppColors.mutedText,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+                       // ---------------------- Total Balance ----------------------
+            SizedBox(
+              width: double.infinity,
+              child: NeonCard(
+                padding: const EdgeInsets.symmetric(vertical: 32),
+                gradient: AppGradients.neonGradient,
+              child: Column(
+                children: [
+                  const Text('Total Balance',
+                      style:
+                          TextStyle(fontSize: 20, color: AppColors.textWhite)),
+                  const SizedBox(height: 6),
+                  Text(
+                    '\$${totalBalance.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textWhite,
+                    ),
+                  ),
+                ],
+              ),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+              // ---------------------- Income / Expenses ----------------------
+            Row(
+              children: [
+                Expanded(
+                  child: _statCard(
+                    'Income',
+                    '\$${totalIncome.toStringAsFixed(2)}',
+                    AppColors.neonGreen,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _statCard(
+                    'Expenses',
+                    '\$${totalExpenses.toStringAsFixed(2)}',
+                    AppColors.danger,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+                        // ---------------------- Donut Chart ----------------------
+            categoryTotals.isNotEmpty
+                ? NeonCard(
+                    backgroundColor: AppColors.darkSurface,
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Spending Overview',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textWhite,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 145,
+                              height: 145,
+                              child: PieChart(
+                                PieChartData(
+                                  sectionsSpace: 2,
+                                  centerSpaceRadius: 38,
+                                  sections: entries.asMap().entries.map((e) {
+                                    final i = e.key;
+                                    final cat = e.value;
+                                    return PieChartSectionData(
+                                      value: cat.value,
+                                      color: chartColors[i % chartColors.length],
+                                      radius: 28,
+                                      title: '',
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(width: 18),
+
+                            Expanded(
+                              child: Column(
+                                children: entries.asMap().entries.map((e) {
+                                  final i = e.key;
+                                  final cat = e.value;
+                                  final pct = totalExpenses > 0
+                                      ? (cat.value / totalExpenses * 100)
+                                      : 0.0;
+
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          width: 8,
+                                          height: 8,
+                                          decoration: BoxDecoration(
+                                            color: chartColors[i % chartColors.length],
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            cat.key,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              color: AppColors.mutedText,
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          '${pct.toStringAsFixed(0)}%',
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: AppColors.textWhite,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  )
+                : NeonCard(
+                    backgroundColor: AppColors.darkSurface,
+                    padding: const EdgeInsets.all(24),
+                    child: const Column(
+                      children: [
+                        Icon(
+                          Icons.pie_chart_outline,
+                          size: 40,
+                          color: AppColors.textWhite,
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'No expense transactions yet',
+                          style: TextStyle(color: AppColors.textWhite),
+                        ),
+                      ],
+                    ),
+                  ),
+            const SizedBox(height: 24),
+
             // ---------------------- Accounts ----------------------
             const Text(
               "Accounts",
@@ -200,7 +409,7 @@ class _HomeScreenState extends State<HomeScreen> {
             accountInfo.isEmpty
                 ? const Text("No accounts to display")
                 : SizedBox(
-                    height: 200,
+                    height: 300,
                     child: ListView.builder(
                       itemCount: accountInfo.length,
                       itemBuilder: (context, index) {
@@ -217,14 +426,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                             ),
-                          child: Container(
-                            height: 50,
-                            width: 411,
-                            decoration: BoxDecoration(
-                              color: AppColors.darkSurface,
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: Row(
+                          child: NeonCard(
+                            gradient: AppGradients.cardGradient,
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            child: SizedBox(
+                              height: 50,
+                              child: Row(
                               children: [
                                 const SizedBox(width: 15),
                                 Text(
@@ -257,7 +464,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                ],
                               ),
                             ),
-                          ),
+                          ), // End NeonCard 
+                        ), //End GesturDector
                         );
                       },
                     ),
@@ -265,7 +473,8 @@ class _HomeScreenState extends State<HomeScreen> {
             const Padding(padding: EdgeInsets.all(5)),
 
             // ---------------------- Add Account Button ----------------------
-            ElevatedButton(
+            GradientButton(
+              text: "Add Account",
               onPressed: () => showModalBottomSheet(
                 context: context,
                 backgroundColor: AppColors.darkSurface,
@@ -301,12 +510,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       const Padding(padding: EdgeInsets.all(25)),
-                      ElevatedButton(
-                        style: ButtonStyle(
-                          backgroundColor: WidgetStatePropertyAll(
-                            AppColors.neonGreen,
-                          ),
-                        ),
+                      GradientButton(
+                        text: "Save",
                         onPressed: () async {
                           try {
                             await supabase.from('Accounts').insert({
@@ -328,168 +533,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             );
                           }
                         },
-                        child: const Text("Save"),
                       ),
                     ],
                   ),
                 ),
               ),
-              child: const Text("Add Account"),
             ),
 
-            const SizedBox(height: 24),
-
-            // ---------------------- Total Balance ----------------------
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              decoration: BoxDecoration(
-                color: AppColors.darkSurface,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                children: [
-                  const Text('Total Balance',
-                      style:
-                          TextStyle(fontSize: 13, color: AppColors.textWhite)),
-                  const SizedBox(height: 6),
-                  Text(
-                    '\$${totalBalance.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textWhite,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // ---------------------- Income / Expenses ----------------------
-            Row(
-              children: [
-                Expanded(
-                  child: _statCard(
-                    'Income',
-                    '\$${totalIncome.toStringAsFixed(2)}',
-                    Colors.green.shade400,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _statCard(
-                    'Expenses',
-                    '\$${totalExpenses.toStringAsFixed(2)}',
-                    AppColors.danger,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // ---------------------- Donut Chart ----------------------
-            categoryTotals.isNotEmpty
-                ? Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.darkSurface,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Column(
-                      children: [
-                        const Text(
-                          'Spending by Category',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.5,
-                            color: AppColors.textWhite,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          height: 220,
-                          child: PieChart(
-                            PieChartData(
-                              sectionsSpace: 2,
-                              centerSpaceRadius: 55,
-                              sections: entries.asMap().entries.map((e) {
-                                final i = e.key;
-                                final cat = e.value;
-                                final pct = totalExpenses > 0
-                                    ? (cat.value / totalExpenses * 100)
-                                    : 0.0;
-                                return PieChartSectionData(
-                                  value: cat.value,
-                                  color: _categoryColors[
-                                      i % _categoryColors.length],
-                                  radius: 45,
-                                  title: '${pct.toStringAsFixed(0)}%',
-                                  titleStyle: const TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        // ---------------------- Legend ----------------------
-                        Wrap(
-                          spacing: 12,
-                          runSpacing: 8,
-                          children: entries.asMap().entries.map((e) {
-                            final i = e.key;
-                            final cat = e.value;
-                            return Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  width: 10,
-                                  height: 10,
-                                  decoration: BoxDecoration(
-                                    color: _categoryColors[
-                                        i % _categoryColors.length],
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                                const SizedBox(width: 5),
-                                Text(
-                                  '${cat.key}  \$${cat.value.toStringAsFixed(0)}',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: AppColors.textWhite,
-                                  ),
-                                ),
-                              ],
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                    ),
-                  )
-                : Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: AppColors.darkSurface,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: const Column(
-                      children: [
-                        Icon(Icons.pie_chart_outline,
-                            size: 40, color: AppColors.textWhite),
-                        SizedBox(height: 8),
-                        Text('No expense transactions yet',
-                            style:
-                                TextStyle(color: AppColors.textWhite)),
-                      ],
-                    ),
-                  ),
             const SizedBox(height: 24),
           ],
         ),

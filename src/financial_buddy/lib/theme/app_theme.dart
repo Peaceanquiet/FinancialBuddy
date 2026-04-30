@@ -171,3 +171,39 @@ class AppTheme {
     );
   }
 }
+
+// GRADIENT SYSTEM FOR BUBBLE BOXES AND BUTTONS
+// These define reusable gradient styles for buttons, cards, etc.
+// This prevents us from hardcoding gradients all over the app.
+class AppGradients {
+  // Main neon gradient (used for buttons / highlights)
+  static const LinearGradient primaryGradient = LinearGradient(
+    colors: [
+      AppColors.accentBlue,
+      AppColors.primaryPink,
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // Card background gradient (subtle dark variation)
+  static const LinearGradient cardGradient = LinearGradient(
+    colors: [
+      AppColors.darkSurface,
+      AppColors.accentBackgroundB,
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // a second neon gradient for variety (used for special highlights)
+  static const LinearGradient neonGradient = LinearGradient(
+    colors: [
+      AppColors.highlightAqua,
+      AppColors.primaryPink,
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+}
+

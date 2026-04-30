@@ -4,6 +4,7 @@ import 'package:financial_buddy/main.dart';
 import 'expense_actions.dart';
 import 'package:financial_buddy/widgets/buddy_drawer.dart';
 import 'package:financial_buddy/theme/app_theme.dart';
+import 'package:financial_buddy/widgets/neon_cards.dart';
 
 class TransactionsPage extends StatefulWidget {
   //const TransactionsPage({super.key});
@@ -375,64 +376,107 @@ class _TransactionsPage extends State<TransactionsPage> {
       ),
     );
   }
-      Future<String?> _showCustomCategoryDialog() async {
-      final ctrl = TextEditingController();
-      final formKey = GlobalKey<FormState>();
+  Color getRotatingAccentColor(int index) {
+    final colors = [
+      AppColors.primaryPink,
+      AppColors.accentBlue,
+      AppColors.neonGreen,
+    ];
 
-      return showDialog<String>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text('New Category'),
-          content: Form(
-            key: formKey,
-            child: TextFormField(
-              controller: ctrl,
-              autofocus: true,
-              decoration: const InputDecoration(labelText: 'Category name'),
-              validator: (val) {
-                if (val == null || val.trim().isEmpty) return 'Name is required';
-                if (val.trim().length < 2) return 'Must be at least 2 characters';
-                if (categories.contains(val.trim())) return 'Category already exists';
-                return null;
-              },
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (formKey.currentState!.validate()) {
-                  final name = ctrl.text.trim();
-                  try {
-                    await saveCategory(name);
-                    await _loadCategories();
-                    if (ctx.mounted) Navigator.pop(ctx, name);
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error: $e'),
-                          backgroundColor: AppColors.danger),
-                    );
-                  }
-                }
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        ),
-      );
+    return colors[index % colors.length];
+  }
+
+  IconData getCategoryIcon(String category) {
+    switch (category) {
+      case 'Food':
+        return Icons.restaurant;
+      case 'Transport':
+        return Icons.directions_car;
+      case 'Housing':
+        return Icons.home;
+      case 'Entertainment':
+        return Icons.movie;
+      case 'Health':
+        return Icons.favorite;
+      case 'Shopping':
+        return Icons.shopping_bag;
+      case 'Salary':
+        return Icons.attach_money;
+      default:
+        return Icons.category;
+    }
+  }
+
+  String formatDateLabel(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final check = DateTime(date.year, date.month, date.day);
+
+    if (check == today) return "Today";
+    if (check == yesterday) return "Yesterday";
+
+    return "${date.month}/${date.day}/${date.year}";
   }
   
+  Future<String?> _showCustomCategoryDialog() async {
+        final ctrl = TextEditingController();
+        final formKey = GlobalKey<FormState>();
+
+        return showDialog<String>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('New Category'),
+            content: Form(
+              key: formKey,
+              child: TextFormField(
+                controller: ctrl,
+                autofocus: true,
+                decoration: const InputDecoration(labelText: 'Category name'),
+                validator: (val) {
+                  if (val == null || val.trim().isEmpty) return 'Name is required';
+                  if (val.trim().length < 2) return 'Must be at least 2 characters';
+                  if (categories.contains(val.trim())) return 'Category already exists';
+                  return null;
+                },
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  if (formKey.currentState!.validate()) {
+                    final name = ctrl.text.trim();
+                    try {
+                      await saveCategory(name);
+                      await _loadCategories();
+                      if (ctx.mounted) Navigator.pop(ctx, name);
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error: $e'),
+                            backgroundColor: AppColors.danger),
+                      );
+                    }
+                  }
+                },
+                child: const Text('Save'),
+              ),
+            ],
+          ),
+        );
+    }
 
   @override
   Widget build(BuildContext context) {
-    final filteredTransactions = selectedCategoryFilter == 'All'
+    var filteredTransactions = selectedCategoryFilter == 'All'
         ? transactions
         : transactions
               .where((tx) => tx.tCategory == selectedCategoryFilter)
               .toList();
+    filteredTransactions.sort((a, b) => b.tDate.compareTo(a.tDate)); // Newest first
 
     return Scaffold(
       backgroundColor: AppColors.backgroundBlack,
@@ -463,137 +507,130 @@ class _TransactionsPage extends State<TransactionsPage> {
       ),
       drawer: BuddyDrawer(title: "Transactions"),
       body: filteredTransactions.isEmpty
-          ? const Center(child: Text('No matching transactions.'))
-          : ListView.builder(
-              padding: const EdgeInsets.all(12),
-              itemCount: filteredTransactions.length,
-              itemBuilder: (context, index) {
-                final tx = filteredTransactions[index];
-                return Card(
-                  color: AppColors.darkSurface,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+    ? const Center(
+        child: Text(
+          'No matching transactions.',
+          style: TextStyle(color: AppColors.textWhite),
+        ),
+      )
+    : ListView.builder(
+        padding: const EdgeInsets.all(12),
+        itemCount: filteredTransactions.length,
+        itemBuilder: (context, index) {
+          final tx = filteredTransactions[index];
+
+          final currentDate = formatDateLabel(tx.tDate);
+
+          final bool showDateHeader = index == 0 ||
+              formatDateLabel(filteredTransactions[index - 1].tDate) != currentDate;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (showDateHeader)
+                Padding(
+                  padding: const EdgeInsets.only(top: 16, bottom: 8, left: 4),
+                  child: Text(
+                    currentDate,
+                    style: const TextStyle(
+                      color: AppColors.mutedText,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  ),
+                ),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: NeonCard(
+                  backgroundColor: AppColors.darkSurface,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // ---------------- ICON ----------------
+                      Container(
+                        width: 38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          color: getRotatingAccentColor(index),
+                        ),
+                        child: Icon(
+                          getCategoryIcon(tx.tCategory),
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+
+                      // ---------------- TEXT INFO ----------------
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               tx.tTitle,
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
+                                color: AppColors.textWhite,
                               ),
                             ),
-                            Text(
-                              tx.tType == 'Income'
-                                  ? '+\$${tx.tAmount.toStringAsFixed(2)}'
-                                  : '-\$${tx.tAmount.toStringAsFixed(2)}',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: tx.tType == 'Income'
-                                    ? AppColors.neonGreen
-                                    : AppColors.danger,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.account_balance_wallet,
-                                  size: 14,
-                                  color: AppColors.accentBlue,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  tx.tAccount,
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    color: AppColors.accentBlue,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Text(
-                              '${tx.tDate.month}/${tx.tDate.day}/${tx.tDate.year}',
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: AppColors.mutedText,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.category,
-                              size: 14,
-                              color: AppColors.mutedText,
-                            ),
-                            const SizedBox(width: 4),
+                            const SizedBox(height: 2),
                             Text(
                               tx.tCategory,
                               style: const TextStyle(
-                                fontSize: 13,
+                                fontSize: 12,
                                 color: AppColors.mutedText,
                               ),
                             ),
                           ],
                         ),
-                        const Divider(),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            TextButton.icon(
-                              onPressed: () => _showEditExpenseDialog(tx),
-                              icon: const Icon(
-                                Icons.edit,
-                                size: 16,
-                                color: AppColors.accentBlue,
-                              ),
-                              label: const Text(
-                                'Edit',
-                                style: TextStyle(color: AppColors.accentBlue),
-                              ),
+                      ),
+
+                      // ---------------- AMOUNT + DATE ----------------
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            tx.tType == 'Income'
+                                ? '+\$${tx.tAmount.toStringAsFixed(2)}'
+                                : '-\$${tx.tAmount.toStringAsFixed(2)}',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: tx.tType == 'Income'
+                                  ? AppColors.neonGreen
+                                  : AppColors.danger,
                             ),
-                            TextButton.icon(
-                              onPressed: () => _confirmDeleteTransaction(tx),
-                              icon: const Icon(
-                                Icons.delete,
-                                size: 16,
-                                color: AppColors.danger,
-                              ),
-                              label: const Text(
-                                'Delete',
-                                style: TextStyle(color: AppColors.danger),
-                              ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${tx.tDate.month}/${tx.tDate.day}/${tx.tDate.year}',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.mutedText,
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                );
-              },
-            ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
 
       floatingActionButton: FloatingActionButton(
+        backgroundColor: AppColors.primaryPink,
+        foregroundColor: AppColors.textWhite,
         onPressed: _showAddExpenseDialog,
         child: const Icon(Icons.add),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 }
