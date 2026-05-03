@@ -4,7 +4,8 @@ class Transaction {
   final String tTitle;
   final String tCategory;
   final DateTime tDate;
-  final String tAccount;
+  final String tAccount;    
+  final String tAccountId;  
   final String tType;
 
   Transaction(
@@ -14,6 +15,7 @@ class Transaction {
     this.tCategory,
     this.tDate,
     this.tAccount,
+    this.tAccountId,
     this.tType,
   );
 }
