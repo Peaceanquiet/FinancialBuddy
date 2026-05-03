@@ -25,17 +25,17 @@ class _HomeScreenState extends State<HomeScreen> {
   double totalIncome = 0;
   double totalExpenses = 0;
   Map<String, double> categoryTotals = {};
+  String? firstName;
+  bool _isLoading = true;
 
-  final List<Color> _categoryColors = [
-    const Color(0xFFAFA9EC),
-    const Color(0xFF5DCAA5),
-    const Color(0xFFFAC775),
-    const Color(0xFFF09595),
-    const Color(0xFF85B7EB),
-    const Color(0xFF97C459),
-    const Color(0xFFED93B1),
-    const Color(0xFFB4B2A9),
-  ];
+  Future<void> _loadProfile() async {
+    final data = await supabase
+        .from('profiles')
+        .select('first_name')
+        .eq('id', user!.id)
+        .single();
+    setState(() => firstName = data['first_name'] ?? '');
+  }
 
   Future<void> loadAccount() async {
     final response = await supabase
@@ -85,6 +85,12 @@ class _HomeScreenState extends State<HomeScreen> {
       totalExpenses = expenses;
       categoryTotals = sortedCats;
     });
+  }
+
+  Future<void> _loadAll() async {
+    setState(() => _isLoading = true);
+    await Future.wait([_loadProfile(), loadAccount(), _loadDashboard()]);
+    if (mounted) setState(() => _isLoading = false);
   }
 
   Future<void> _deleteAccount(String accId, String accName) async {
@@ -137,19 +143,9 @@ class _HomeScreenState extends State<HomeScreen> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12, color: AppColors.textWhite),
-        ),
+        Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textWhite)),
         const SizedBox(height: 4),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: color,
-          ),
-        ),
+        Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: color)),
       ],
     ),
   );
@@ -157,8 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    loadAccount();
-    _loadDashboard();
+    _loadAll();
   }
 
   @override
@@ -194,356 +189,331 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       drawer: BuddyDrawer(title: "Financial Destination"),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-                // ---------------------- Greeting ----------------------
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Good Morning,',
-                    style: TextStyle(
-                      color: AppColors.textWhite,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    user?.email ?? 'User',
-                    style: const TextStyle(
-                      color: AppColors.accentBlue,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Your financial summary',
-                    style: TextStyle(
-                      color: AppColors.mutedText,
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-                       // ---------------------- Total Balance ----------------------
-            SizedBox(
-              width: double.infinity,
-              child: NeonCard(
-                padding: const EdgeInsets.symmetric(vertical: 32),
-                gradient: AppGradients.neonGradient,
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  const Text('Total Balance',
-                      style:
-                          TextStyle(fontSize: 20, color: AppColors.textWhite)),
-                  const SizedBox(height: 6),
-                  Text(
-                    '\$${totalBalance.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textWhite,
-                    ),
-                  ),
-                ],
-              ),
-              ),
-            ),
-            const SizedBox(height: 12),
-
-              // ---------------------- Income / Expenses ----------------------
-            Row(
-              children: [
-                Expanded(
-                  child: _statCard(
-                    'Income',
-                    '\$${totalIncome.toStringAsFixed(2)}',
-                    AppColors.neonGreen,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _statCard(
-                    'Expenses',
-                    '\$${totalExpenses.toStringAsFixed(2)}',
-                    AppColors.danger,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-                        // ---------------------- Donut Chart ----------------------
-            categoryTotals.isNotEmpty
-                ? NeonCard(
-                    backgroundColor: AppColors.darkSurface,
-                    padding: const EdgeInsets.all(16),
+                  // ---------------------- Greeting ----------------------
+                  Align(
+                    alignment: Alignment.centerLeft,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Spending Overview',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textWhite,
+                        const Text('Hello,',
+                            style: TextStyle(color: AppColors.textWhite, fontSize: 16)),
+                        const SizedBox(height: 2),
+                        Text(
+                          firstName ?? '',
+                          style: const TextStyle(
+                            color: AppColors.accentBlue,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 16),
-
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 145,
-                              height: 145,
-                              child: PieChart(
-                                PieChartData(
-                                  sectionsSpace: 2,
-                                  centerSpaceRadius: 38,
-                                  sections: entries.asMap().entries.map((e) {
-                                    final i = e.key;
-                                    final cat = e.value;
-                                    return PieChartSectionData(
-                                      value: cat.value,
-                                      color: chartColors[i % chartColors.length],
-                                      radius: 28,
-                                      title: '',
-                                    );
-                                  }).toList(),
-                                ),
-                              ),
-                            ),
-
-                            const SizedBox(width: 18),
-
-                            Expanded(
-                              child: Column(
-                                children: entries.asMap().entries.map((e) {
-                                  final i = e.key;
-                                  final cat = e.value;
-                                  final pct = totalExpenses > 0
-                                      ? (cat.value / totalExpenses * 100)
-                                      : 0.0;
-
-                                  return Padding(
-                                    padding: const EdgeInsets.only(bottom: 8),
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          width: 8,
-                                          height: 8,
-                                          decoration: BoxDecoration(
-                                            color: chartColors[i % chartColors.length],
-                                            shape: BoxShape.circle,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            cat.key,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
-                                              fontSize: 12,
-                                              color: AppColors.mutedText,
-                                            ),
-                                          ),
-                                        ),
-                                        Text(
-                                          '${pct.toStringAsFixed(0)}%',
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: AppColors.textWhite,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  )
-                : NeonCard(
-                    backgroundColor: AppColors.darkSurface,
-                    padding: const EdgeInsets.all(24),
-                    child: const Column(
-                      children: [
-                        Icon(
-                          Icons.pie_chart_outline,
-                          size: 40,
-                          color: AppColors.textWhite,
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'No expense transactions yet',
-                          style: TextStyle(color: AppColors.textWhite),
-                        ),
+                        const SizedBox(height: 4),
+                        const Text('Your financial summary',
+                            style: TextStyle(color: AppColors.mutedText, fontSize: 13)),
                       ],
                     ),
                   ),
-            const SizedBox(height: 24),
 
-            // ---------------------- Accounts ----------------------
-            const Text(
-              "Accounts",
-              textScaler: TextScaler.linear(1.55),
-              style: TextStyle(
-                fontSize: 16,
-                color: AppColors.textWhite,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            accountInfo.isEmpty
-                ? const Text("No accounts to display")
-                : SizedBox(
-                    height: 300,
-                    child: ListView.builder(
-                      itemCount: accountInfo.length,
-                      itemBuilder: (context, index) {
-                        final acc = accountInfo[index];
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: GestureDetector(
-                            onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => TransactionsPage(
-                                  filterAccountId: acc['acc_id'].toString(),
-                                  filterAccountName: acc['acc_name'],
-                                ),
-                              ),
+                  const SizedBox(height: 20),
+
+                  // ---------------------- Total Balance ----------------------
+                  SizedBox(
+                    width: double.infinity,
+                    child: NeonCard(
+                      padding: const EdgeInsets.symmetric(vertical: 32),
+                      gradient: AppGradients.neonGradient,
+                      child: Column(
+                        children: [
+                          const Text('Total Balance',
+                              style: TextStyle(fontSize: 20, color: AppColors.textWhite)),
+                          const SizedBox(height: 6),
+                          Text(
+                            '\$${totalBalance.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textWhite,
                             ),
-                          child: NeonCard(
-                            gradient: AppGradients.cardGradient,
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            child: SizedBox(
-                              height: 50,
-                              child: Row(
-                              children: [
-                                const SizedBox(width: 15),
-                                Text(
-                                  acc['acc_name'],
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    color: AppColors.textWhite,
-                                  ),
-                                ),
-                                const Spacer(),
-                                Text(
-                                  "\$${acc['balance']}",
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    color: AppColors.textWhite,
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                IconButton(
-                                  icon: const Icon(
-                                    Icons.delete,
-                                    color: AppColors.danger,
-                                    size: 20,
-                                  ),
-                                  onPressed: () => _deleteAccount(
-                                    acc['acc_id'].toString(),
-                                    acc['acc_name'],
-                                  ),
-                                ),
-                               ],
-                              ),
-                            ),
-                          ), // End NeonCard 
-                        ), //End GesturDector
-                        );
-                      },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-            const Padding(padding: EdgeInsets.all(5)),
+                  const SizedBox(height: 12),
 
-            // ---------------------- Add Account Button ----------------------
-            GradientButton(
-              text: "Add Account",
-              onPressed: () => showModalBottomSheet(
-                context: context,
-                backgroundColor: AppColors.darkSurface,
-                isScrollControlled: true,
-                builder: (_) => Padding(
-                  padding: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).viewInsets.bottom),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
+                  // ---------------------- Income / Expenses ----------------------
+                  Row(
                     children: [
-                      const Padding(padding: EdgeInsets.all(5)),
-                      TextFormField(
-                        controller: accNameCtrlr,
-                        decoration: const InputDecoration(
-                          hintText: "Account Name",
-                          contentPadding: EdgeInsets.all(10),
-                        ),
+                      Expanded(
+                        child: _statCard('Income', '\$${totalIncome.toStringAsFixed(2)}',
+                            AppColors.neonGreen),
                       ),
-                      const Padding(padding: EdgeInsets.all(5)),
-                      TextFormField(
-                        controller: accTypeCtrlr,
-                        decoration: const InputDecoration(
-                          hintText: "Account Type (Checking, Savings, Etc.)",
-                          contentPadding: EdgeInsets.all(10),
-                        ),
-                      ),
-                      const Padding(padding: EdgeInsets.all(5)),
-                      TextFormField(
-                        controller: accBlncCtrlr,
-                        decoration: const InputDecoration(
-                          hintText: "Initial Balance",
-                          contentPadding: EdgeInsets.all(10),
-                        ),
-                      ),
-                      const Padding(padding: EdgeInsets.all(25)),
-                      GradientButton(
-                        text: "Save",
-                        onPressed: () async {
-                          try {
-                            await supabase.from('Accounts').insert({
-                              'user_id': user!.id,
-                              'acc_name': accNameCtrlr.text.trim(),
-                              'type': accTypeCtrlr.text.trim(),
-                              'balance': toDouble(accBlncCtrlr.text.trim()),
-                            });
-                            await loadAccount();
-                            await _loadDashboard();
-                            if (context.mounted) Navigator.pop(context);
-                          } catch (error) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(error.toString()),
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.error,
-                              ),
-                            );
-                          }
-                        },
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _statCard('Expenses', '\$${totalExpenses.toStringAsFixed(2)}',
+                            AppColors.danger),
                       ),
                     ],
                   ),
-                ),
+                  const SizedBox(height: 20),
+
+                  // ---------------------- Donut Chart ----------------------
+                  categoryTotals.isNotEmpty
+                      ? NeonCard(
+                          backgroundColor: AppColors.darkSurface,
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Spending Overview',
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textWhite)),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  SizedBox(
+                                    width: 145,
+                                    height: 145,
+                                    child: PieChart(
+                                      PieChartData(
+                                        sectionsSpace: 2,
+                                        centerSpaceRadius: 38,
+                                        sections: entries.asMap().entries.map((e) {
+                                          final i = e.key;
+                                          final cat = e.value;
+                                          return PieChartSectionData(
+                                            value: cat.value,
+                                            color: chartColors[i % chartColors.length],
+                                            radius: 28,
+                                            title: '',
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 18),
+                                  Expanded(
+                                    child: Column(
+                                      children: entries.asMap().entries.map((e) {
+                                        final i = e.key;
+                                        final cat = e.value;
+                                        final pct = totalExpenses > 0
+                                            ? (cat.value / totalExpenses * 100)
+                                            : 0.0;
+                                        return Padding(
+                                          padding: const EdgeInsets.only(bottom: 8),
+                                          child: Row(
+                                            children: [
+                                              Container(
+                                                width: 8,
+                                                height: 8,
+                                                decoration: BoxDecoration(
+                                                  color: chartColors[i % chartColors.length],
+                                                  shape: BoxShape.circle,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: Text(cat.key,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: AppColors.mutedText)),
+                                              ),
+                                              Text('${pct.toStringAsFixed(0)}%',
+                                                  style: const TextStyle(
+                                                      fontSize: 12,
+                                                      color: AppColors.textWhite,
+                                                      fontWeight: FontWeight.bold)),
+                                            ],
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        )
+                      : NeonCard(
+                          backgroundColor: AppColors.darkSurface,
+                          padding: const EdgeInsets.all(24),
+                          child: const Column(
+                            children: [
+                              Icon(Icons.pie_chart_outline, size: 40, color: AppColors.mutedText),
+                              SizedBox(height: 8),
+                              Text('No expense transactions yet',
+                                  style: TextStyle(
+                                      color: AppColors.mutedText,
+                                      fontWeight: FontWeight.bold)),
+                              SizedBox(height: 4),
+                              Text('Add a transaction to see your spending breakdown.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: AppColors.mutedText, fontSize: 12)),
+                            ],
+                          ),
+                        ),
+                  const SizedBox(height: 24),
+
+                  // ---------------------- Accounts ----------------------
+                  const Text("Accounts",
+                      textScaler: TextScaler.linear(1.55),
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: AppColors.textWhite,
+                          fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  accountInfo.isEmpty
+                      ? NeonCard(
+                          backgroundColor: AppColors.darkSurface,
+                          padding: const EdgeInsets.all(24),
+                          child: const Column(
+                            children: [
+                              Icon(Icons.account_balance_wallet_outlined,
+                                  size: 40, color: AppColors.mutedText),
+                              SizedBox(height: 8),
+                              Text('No accounts yet',
+                                  style: TextStyle(
+                                      color: AppColors.mutedText,
+                                      fontWeight: FontWeight.bold)),
+                              SizedBox(height: 4),
+                              Text('Tap "Add Account" below to get started.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: AppColors.mutedText, fontSize: 12)),
+                            ],
+                          ),
+                        )
+                      : SizedBox(
+                          height: 300,
+                          child: ListView.builder(
+                            itemCount: accountInfo.length,
+                            itemBuilder: (context, index) {
+                              final acc = accountInfo[index];
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 4),
+                                child: GestureDetector(
+                                  onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => TransactionsPage(
+                                        filterAccountId: acc['acc_id'].toString(),
+                                        filterAccountName: acc['acc_name'],
+                                      ),
+                                    ),
+                                  ),
+                                  child: NeonCard(
+                                    gradient: AppGradients.cardGradient,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 8),
+                                    child: SizedBox(
+                                      height: 50,
+                                      child: Row(
+                                        children: [
+                                          const SizedBox(width: 15),
+                                          Text(acc['acc_name'],
+                                              style: const TextStyle(
+                                                  fontSize: 18, color: AppColors.textWhite)),
+                                          const Spacer(),
+                                          Text("\$${acc['balance']}",
+                                              style: const TextStyle(
+                                                  fontSize: 18, color: AppColors.textWhite)),
+                                          const SizedBox(width: 6),
+                                          IconButton(
+                                            icon: const Icon(Icons.delete,
+                                                color: AppColors.danger, size: 20),
+                                            onPressed: () => _deleteAccount(
+                                                acc['acc_id'].toString(), acc['acc_name']),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                  const Padding(padding: EdgeInsets.all(5)),
+
+                  // ---------------------- Add Account Button ----------------------
+                  GradientButton(
+                    text: "Add Account",
+                    onPressed: () => showModalBottomSheet(
+                      context: context,
+                      backgroundColor: AppColors.darkSurface,
+                      isScrollControlled: true,
+                      builder: (_) => Padding(
+                        padding: EdgeInsets.only(
+                            bottom: MediaQuery.of(context).viewInsets.bottom),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Padding(padding: EdgeInsets.all(5)),
+                            TextFormField(
+                              controller: accNameCtrlr,
+                              decoration: const InputDecoration(
+                                  hintText: "Account Name",
+                                  contentPadding: EdgeInsets.all(10)),
+                            ),
+                            const Padding(padding: EdgeInsets.all(5)),
+                            TextFormField(
+                              controller: accTypeCtrlr,
+                              decoration: const InputDecoration(
+                                  hintText: "Account Type (Checking, Savings, Etc.)",
+                                  contentPadding: EdgeInsets.all(10)),
+                            ),
+                            const Padding(padding: EdgeInsets.all(5)),
+                            TextFormField(
+                              controller: accBlncCtrlr,
+                              decoration: const InputDecoration(
+                                  hintText: "Initial Balance",
+                                  contentPadding: EdgeInsets.all(10)),
+                            ),
+                            const Padding(padding: EdgeInsets.all(25)),
+                            GradientButton(
+                              text: "Save",
+                              onPressed: () async {
+                                try {
+                                  await supabase.from('Accounts').insert({
+                                    'user_id': user!.id,
+                                    'acc_name': accNameCtrlr.text.trim(),
+                                    'type': accTypeCtrlr.text.trim(),
+                                    'balance': toDouble(accBlncCtrlr.text.trim()),
+                                  });
+                                  await loadAccount();
+                                  await _loadDashboard();
+                                  accNameCtrlr.clear();
+                                  accTypeCtrlr.clear();
+                                  accBlncCtrlr.clear();
+                                  if (context.mounted) Navigator.pop(context);
+                                } catch (error) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(error.toString()),
+                                      backgroundColor:
+                                          Theme.of(context).colorScheme.error,
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
               ),
             ),
-
-            const SizedBox(height: 24),
-          ],
-        ),
-      ),
     );
   }
 }
